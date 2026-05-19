@@ -18,3 +18,12 @@ rules:
     - Must use architecture-decision-records skill
   spec:
     - Must use gherkin-authoring skill
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours

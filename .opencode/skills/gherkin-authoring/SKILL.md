@@ -1,389 +1,95 @@
 ---
 name: gherkin-authoring
-description: Gherkin acceptance criteria authoring. Use when writing Given/When/Then scenarios, feature files, or BDD-style specifications. Provides syntax reference, best practices, and Reqnroll integration guidance.
-allowed-tools: Read, Glob, Grep, Write, Edit
+description: Use when drafting, reviewing, or improving Gherkin, Cucumber scenarios, BDD acceptance criteria, feature examples, Scenario Outlines, Backgrounds, Rules, Doc Strings, Data Tables, tags, or Gherkin embedded in Markdown.
 ---
 
 # Gherkin Authoring
 
-Gherkin/BDD acceptance criteria authoring for executable specifications.
+## Overview
 
-## When to Use This Skill
+Write Gherkin as executable examples of business behavior. Optimize for domain language, concrete examples, and observable outcomes; keep implementation and UI mechanics inside step definitions.
 
-**Keywords:** Gherkin, Given/When/Then, BDD, behavior-driven development, feature files, scenarios, acceptance criteria, Reqnroll, Cucumber, SpecFlow, executable specifications
+## Scope
 
-**Use this skill when:**
+Use this for standalone `.feature` files and Gherkin embedded in Markdown or other prose. When Gherkin is inside a Markdown wrapper, review or rewrite only the Gherkin section unless the user asks for broader document edits. Preserve fences, headings, and surrounding prose. If the input includes Markdown around the Gherkin, return the Markdown wrapper with only the Gherkin block changed.
 
-- Writing acceptance criteria in Given/When/Then format
-- Creating .feature files for BDD testing
-- Converting requirements to executable specifications
-- Setting up Reqnroll tests in .NET projects
-- Understanding Gherkin syntax and best practices
+## Workflow
 
-## Quick Syntax Reference
+1. Identify the Gherkin region: whole `.feature` file, fenced `gherkin` block, indented block, quoted acceptance criteria, or inline scenario text.
+2. Preserve the surrounding wrapper unless explicitly asked to change it. For Markdown input, return the heading/prose/fence context, not just the fenced Gherkin block.
+3. Clarify the behavior as examples: initial state, event, observable outcome.
+4. Choose the smallest structure that expresses the behavior: `Feature`, optional `Rule`, `Background`, `Scenario`/`Example`, or `Scenario Outline` with `Examples`.
+5. Keep scenarios concrete and short, usually 3-5 steps.
+6. Review syntax and readability before returning: colons, step keywords, duplicate step text, observable outcomes, and table/doc string formatting.
 
-### Feature File Structure
+## Quick Reference
 
-```gherkin
-Feature: <Feature Name>
-  <Feature description>
-
-  Background:
-    Given <common precondition>
-
-  Scenario: <Scenario Name>
-    Given <precondition>
-    When <action>
-    Then <expected outcome>
-
-  Scenario Outline: <Parameterized Scenario>
-    Given <precondition with <parameter>>
-    When <action with <parameter>>
-    Then <expected outcome with <parameter>>
-
-    Examples:
-      | parameter |
-      | value1    |
-      | value2    |
-```
-
-### Step Keywords
-
-| Keyword | Purpose | Example |
+| Construct | Use for | Syntax note |
 | --- | --- | --- |
-| `Given` | Setup preconditions | Given a user is logged in |
-| `When` | Describe action | When the user clicks submit |
-| `Then` | Assert outcome | Then the form is saved |
-| `And` | Additional step (same type) | And an email is sent |
-| `But` | Negative condition | But no error is shown |
+| `Feature:` | One high-level capability per feature document or block | Requires `:` |
+| `Rule:` | Group scenarios under one business rule | Requires `:` |
+| `Scenario:` / `Example:` | One concrete example | Requires `:` |
+| `Background:` | Short shared context for following scenarios | Requires `:`; one per `Feature` or `Rule` |
+| `Scenario Outline:` | Same behavior with varied data | Requires `Examples:` and `<parameter>` placeholders |
+| `Examples:` | Data rows for an outline | Requires `:` and a table |
+| `Given` | Known state or precondition | No `:` |
+| `When` | Event or action | No `:` |
+| `Then` | Observable outcome | No `:` |
+| `And` / `But` | Continue the previous step type | No `:` |
+| `*` | Bullet-like step list | Use sparingly for list-style setup |
+| `@tag` | Group or filter features/scenarios | Place above the item tagged |
+| `#` | Line comment | Line comments only; no block comments |
+| `"""` | Doc String | Passed as final step argument |
+| `|` | Data Table | Passed as final step argument |
 
-## Writing Effective Scenarios
+## Authoring Rules
 
-### The Three A's Pattern
+- Use the language domain experts use. Avoid translating business behavior into UI clicks, HTTP calls, database rows, queues, mocks, or implementation details.
+- `Given` puts the system in a known state. Avoid user interaction in `Given` steps.
+- `When` describes one meaningful event.
+- `Then` describes an outcome visible to a user or external system. Do not assert hidden database state unless that is the actual external contract.
+- Use `And` and `But` to improve flow, not to hide new phases of the scenario.
+- Avoid identical step text under different step keywords; Cucumber ignores `Given`/`When`/`Then` when matching step definitions.
+- Use two-space indentation unless preserving existing style.
+- Keep `Background` short and vivid. If it grows beyond about four lines, use higher-level steps or split by `Rule`/`Feature`.
+- Use `Scenario Outline` only when examples share the same behavior and differ by data.
+- Escape `|` as `\|`, newline as `\n`, and backslash as `\\` inside Data Table cells.
 
-Gherkin maps to the Arrange-Act-Assert pattern:
+## Example
 
-| Gherkin | AAA | Purpose |
-| --- | --- | --- |
-| Given | Arrange | Set up the test context |
-| When | Act | Perform the action under test |
-| Then | Assert | Verify the expected outcome |
+Markdown wrapper preserved; only the Gherkin block is authored:
 
-### Single Behavior Per Scenario
-
-**Good - One behavior:**
-
-```gherkin
-Scenario: User login with valid credentials
-  Given a registered user exists
-  When the user enters valid credentials
-  Then the user is logged in
-```
-
-**Bad - Multiple behaviors:**
-
-```gherkin
-Scenario: User login and profile update
-  Given a registered user exists
-  When the user enters valid credentials
-  Then the user is logged in
-  When the user updates their profile
-  Then the profile is saved
-```
-
-### Declarative vs Imperative Style
-
-**Declarative (Preferred) - What, not how:**
+````markdown
+## Acceptance Criteria
 
 ```gherkin
-Scenario: Successful checkout
-  Given a customer with items in cart
-  When the customer completes checkout
-  Then the order is confirmed
+Feature: Password reset
+  Rule: Reset links expire after their allowed lifetime
+
+    Scenario: Customer resets their password before the link expires
+      Given Priya has requested a password reset
+      And the reset link is still valid
+      When Priya chooses a new password with the reset link
+      Then she can sign in with the new password
+
+    Scenario: Customer uses an expired reset link
+      Given Priya has requested a password reset
+      And the reset link has expired
+      When Priya tries to choose a new password with the reset link
+      Then she is told the reset link has expired
+      And her password is unchanged
 ```
+````
 
-**Imperative (Avoid) - Too detailed:**
+## Common Mistakes
 
-```gherkin
-Scenario: Successful checkout
-  Given a customer is on the home page
-  And the customer clicks "Products"
-  And the customer clicks "Add to Cart" on item 1
-  And the customer clicks "Cart" icon
-  And the customer clicks "Checkout" button
-  ...
-```
-
-## Background Section
-
-Use Background for common setup shared across all scenarios in a feature:
-
-```gherkin
-Feature: Shopping Cart
-
-  Background:
-    Given a customer is logged in
-    And the product catalog is available
-
-  Scenario: Add item to cart
-    When the customer adds a product to cart
-    Then the cart contains 1 item
-
-  Scenario: Remove item from cart
-    Given the cart contains a product
-    When the customer removes the product
-    Then the cart is empty
-```
-
-### Background Guidelines
-
-- Keep Background short (1-3 steps)
-- Only include truly common setup
-- Don't include anything not needed by ALL scenarios
-- Consider splitting features if Background grows large
-
-## Scenario Outline
-
-Use Scenario Outline for parameterized tests:
-
-```gherkin
-Scenario Outline: Validate email format
-  Given a user registration form
-  When the user enters email "<email>"
-  Then the validation result is "<result>"
-
-  Examples:
-    | email              | result  |
-    | user@example.com   | valid   |
-    | invalid-email      | invalid |
-    | @missing-local.com | invalid |
-    | user@             | invalid |
-```
-
-### When to Use Scenario Outline
-
-**Use for:**
-
-- Testing same logic with different data
-- Boundary testing
-- Error message variations
-- Multiple valid/invalid inputs
-
-**Avoid when:**
-
-- Scenarios have fundamentally different flows
-- Setup differs significantly between examples
-- Only 1-2 examples (use separate scenarios)
-
-## Tags
-
-Organize and filter scenarios with tags:
-
-```gherkin
-@smoke @authentication
-Feature: User Login
-
-  @happy-path
-  Scenario: Successful login
-    ...
-
-  @security @negative
-  Scenario: Account lockout after failed attempts
-    ...
-```
-
-### Common Tag Categories
-
-| Category | Examples |
+| Mistake | Fix |
 | --- | --- |
-| Priority | @critical, @high, @medium, @low |
-| Type | @smoke, @regression, @e2e |
-| Feature | @authentication, @checkout, @search |
-| State | @wip, @pending, @manual |
-| Non-functional | @security, @performance, @accessibility |
-
-## Integration with Canonical Spec
-
-Gherkin acceptance criteria map to canonical specification:
-
-```yaml
-requirements:
-  - id: "REQ-001"
-    text: "WHEN a user submits valid credentials, the system SHALL authenticate the user"
-    priority: must
-    ears_type: event-driven
-    acceptance_criteria:
-      - id: "AC-001"
-        given: "a registered user with valid credentials"
-        when: "the user submits the login form"
-        then: "the user is authenticated"
-        and:
-          - "a session is created"
-          - "the user is redirected to dashboard"
-```
-
-### Mapping Rules
-
-| Canonical Field | Gherkin Element |
-| --- | --- |
-| `acceptance_criteria.given` | Given step(s) |
-| `acceptance_criteria.when` | When step(s) |
-| `acceptance_criteria.then` | Then step(s) |
-| `acceptance_criteria.and` | Additional And/But steps |
-
-## Best Practices
-
-### Scenario Naming
-
-**Good:**
-
-- Describes the behavior being tested
-- Uses domain language
-- Specifies the outcome
-
-```gherkin
-Scenario: User receives confirmation email after registration
-Scenario: Cart total updates when quantity changes
-Scenario: Search returns relevant results sorted by relevance
-```
-
-**Bad:**
-
-- Generic or vague
-- Implementation-focused
-- Missing outcome
-
-```gherkin
-Scenario: Test registration
-Scenario: Click add button
-Scenario: Verify database
-```
-
-### Step Reusability
-
-Write steps that can be reused:
-
-**Reusable:**
-
-```gherkin
-Given a user with role "<role>"
-Given the user has "<count>" items in cart
-When the user performs "<action>"
-```
-
-**Not Reusable:**
-
-```gherkin
-Given John Smith is logged in as admin
-Given the user has 3 items in cart for checkout test
-When the user clicks the blue submit button
-```
-
-### Avoid Coupling to UI
-
-**Good - Behavior-focused:**
-
-```gherkin
-When the user submits the form with invalid data
-Then an error message is displayed
-```
-
-**Bad - UI-coupled:**
-
-```gherkin
-When the user clicks the red Submit button at the bottom
-Then a red error div appears below the form
-```
-
-## Reqnroll Integration (.NET)
-
-### Step Definition Example
-
-```csharp
-[Binding]
-public class LoginSteps
-{
-    private readonly ScenarioContext _context;
-
-    public LoginSteps(ScenarioContext context)
-    {
-        _context = context;
-    }
-
-    [Given(@"a registered user exists")]
-    public void GivenARegisteredUserExists()
-    {
-        var user = new User("test@example.com", "password123");
-        _context["user"] = user;
-    }
-
-    [When(@"the user enters valid credentials")]
-    public void WhenTheUserEntersValidCredentials()
-    {
-        var user = _context.Get<User>("user");
-        var result = _authService.Login(user.Email, user.Password);
-        _context["loginResult"] = result;
-    }
-
-    [Then(@"the user is logged in")]
-    public void ThenTheUserIsLoggedIn()
-    {
-        var result = _context.Get<LoginResult>("loginResult");
-        result.Success.Should().BeTrue();
-    }
-}
-```
-
-### Project Setup
-
-```xml
-<PackageReference Include="Reqnroll" Version="2.*" />
-<PackageReference Include="Reqnroll.NUnit" Version="2.*" />
-```
-
-## Anti-Patterns to Avoid
-
-| Anti-Pattern | Problem | Fix |
-| --- | --- | --- |
-| Feature-length scenarios | Hard to maintain | Split into focused scenarios |
-| Imperative steps | Brittle, verbose | Use declarative style |
-| Technical jargon | Not business-readable | Use domain language |
-| Coupled to UI | Breaks on UI changes | Focus on behavior |
-| No Background | Duplicated Given steps | Extract common setup |
-| Too many Examples | Slow, redundant | Test boundary cases only |
-
-## Validation Checklist
-
-Before finalizing a Gherkin scenario:
-
-- [ ] Single behavior per scenario
-- [ ] Declarative, not imperative
-- [ ] Uses domain language
-- [ ] Given establishes context only
-- [ ] When contains single action
-- [ ] Then asserts observable outcomes
-- [ ] No implementation details
-- [ ] Scenario name describes behavior
-
-## References
-
-**Detailed Documentation:**
-
-- [Syntax Reference](references/syntax-reference.md) - Complete Gherkin syntax
-- [Best Practices](references/best-practices.md) - BDD best practices
-
-**Related Skills:**
-
-- `canonical-spec-format` - Canonical specification structure
-- `spec-management` - Specification workflow navigation
-- `ears-authoring` - EARS requirement patterns
-
----
-
-**Last Updated:** 2025-12-24
-
-## Version History
-
-- **v1.0.0** (2025-12-26): Initial release
-
----
+| Complaining about Markdown around a Gherkin block | Preserve the wrapper and work only on the Gherkin section. |
+| Returning only a fenced Gherkin block when the input was Markdown | Return the original Markdown wrapper with only the Gherkin content changed. |
+| `Feature Checkout` or `Scenario: Place order:` | Add the missing colon after `Feature`; remove extra colon from the scenario title. |
+| `Given I click the checkout button` | Move interaction to `When`; describe state in `Given`. |
+| `Then an order row exists in the database` | Prefer an observable result, such as an order confirmation. |
+| Reusing the same step text for `Given` and `Then` | Change the wording so the domain meaning is distinct. |
+| Long scripts with many UI actions | Raise the abstraction and keep the scenario to the behavior. |
+| Large `Background` sections | Use higher-level context or split scenarios by `Rule` or `Feature`. |
