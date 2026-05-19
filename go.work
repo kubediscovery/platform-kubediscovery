@@ -1,0 +1,11 @@
+go 1.26
+
+use (
+	./libs
+	./services/kd-gateway
+	./services/kd-analyzer
+	./services/kd-executor
+	./services/kd-agent
+	./services/kd-store
+	./cli/kdctl
+)
