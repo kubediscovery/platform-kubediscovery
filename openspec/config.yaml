@@ -1,0 +1,20 @@
+schema: intent-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+rules:
+  proposal:
+    - Must use grill-me skill
+  design:
+    - Must use c4-architecture skill
+  adr:
+    - Must use architecture-decision-records skill
+  spec:
+    - Must use gherkin-authoring skill
