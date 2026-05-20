@@ -71,11 +71,6 @@ github_app_token() {
     -d '{}' | jq -r '.token'
 }
 
-if ! command -v gh >/dev/null 2>&1; then
-  echo "gh CLI not found. Install GitHub CLI before running this script." >&2
-  exit 1
-fi
-
 if ! command -v jq >/dev/null 2>&1; then
   echo "jq not found. Install jq before running this script." >&2
   exit 1
@@ -94,8 +89,20 @@ if [[ -z "$GITHUB_APP_TOKEN" || "$GITHUB_APP_TOKEN" == "null" ]]; then
   exit 1
 fi
 # 2) Auth gh with app token
-retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" gh auth login --with-token <<< "$GITHUB_APP_TOKEN" >/dev/null
-retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" gh repo view "$REPO" >/dev/null
+if command -v gh >/dev/null 2>&1; then
+  retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" gh auth login --with-token <<< "$GITHUB_APP_TOKEN" >/dev/null
+  retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" gh repo view "$REPO" >/dev/null
+  DEFAULT_BRANCH="$(gh repo view "$REPO" --json defaultBranchRef -q '.defaultBranchRef.name')"
+else
+  DEFAULT_BRANCH="$(retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" curl -sS --max-time 30 "https://api.github.com/repos/${REPO}" \
+    -H "Authorization: Bearer ${GITHUB_APP_TOKEN}" \
+    -H "Accept: application/vnd.github+json" \
+    -H "X-GitHub-Api-Version: 2022-11-28" | jq -r '.default_branch')"
+  if [[ -z "$DEFAULT_BRANCH" || "$DEFAULT_BRANCH" == "null" ]]; then
+    echo "Could not resolve default branch from GitHub API for ${REPO}" >&2
+    exit 1
+  fi
+fi
 # 3) Move Linear issue to In Progress
 LINEAR_QUERY='
 query($teamKey:String!){
@@ -129,7 +136,6 @@ retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" curl -sS --max-time 30 https://ap
 # 4) Create branch
 BRANCH="feat/${ISSUE_KEY}-${SLUG}"
 retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" git fetch origin
-DEFAULT_BRANCH="$(gh repo view "$REPO" --json defaultBranchRef -q '.defaultBranchRef.name')"
 git checkout "$DEFAULT_BRANCH"
 retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" git pull --ff-only origin "$DEFAULT_BRANCH"
 git checkout -b "$BRANCH"

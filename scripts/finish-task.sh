@@ -70,11 +70,6 @@ github_app_token() {
     -d '{}' | jq -r '.token'
 }
 
-if ! command -v gh >/dev/null 2>&1; then
-  echo "gh CLI not found. Install GitHub CLI before running this script." >&2
-  exit 1
-fi
-
 if ! command -v jq >/dev/null 2>&1; then
   echo "jq not found. Install jq before running this script." >&2
   exit 1
@@ -91,8 +86,12 @@ if [[ -z "$GITHUB_APP_TOKEN" || "$GITHUB_APP_TOKEN" == "null" ]]; then
   exit 1
 fi
 
-retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" gh auth login --with-token <<< "$GITHUB_APP_TOKEN" >/dev/null
-retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" gh repo view "$REPO" >/dev/null
+HAS_GH=0
+if command -v gh >/dev/null 2>&1; then
+  HAS_GH=1
+  retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" gh auth login --with-token <<< "$GITHUB_APP_TOKEN" >/dev/null
+  retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" gh repo view "$REPO" >/dev/null
+fi
 
 BRANCH="$(git branch --show-current)"
 if [[ -z "$BRANCH" ]]; then
@@ -105,9 +104,27 @@ if [[ -n "$(git status --porcelain)" ]]; then
   git commit -m "${ISSUE_KEY}: ${SUMMARY}"
 fi
 
-retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" git push -u origin "$BRANCH"
+ORIGIN_URL="$(git remote get-url origin)"
+AUTH_ORIGIN_URL="$ORIGIN_URL"
+if [[ "$ORIGIN_URL" =~ ^https://github.com/ ]]; then
+  AUTH_ORIGIN_URL="https://x-access-token:${GITHUB_APP_TOKEN}@${ORIGIN_URL#https://}"
+fi
+retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" git push -u "$AUTH_ORIGIN_URL" "$BRANCH"
 
-DEFAULT_BRANCH="$(gh repo view "$REPO" --json defaultBranchRef -q '.defaultBranchRef.name')"
+if [[ "$HAS_GH" -eq 1 ]]; then
+  DEFAULT_BRANCH="$(gh repo view "$REPO" --json defaultBranchRef -q '.defaultBranchRef.name')"
+else
+  DEFAULT_BRANCH="$(retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" curl -sS --max-time 30 "https://api.github.com/repos/${REPO}" \
+    -H "Authorization: Bearer ${GITHUB_APP_TOKEN}" \
+    -H "Accept: application/vnd.github+json" \
+    -H "X-GitHub-Api-Version: 2022-11-28" | jq -r '.default_branch')"
+fi
+
+if [[ -z "$DEFAULT_BRANCH" || "$DEFAULT_BRANCH" == "null" ]]; then
+  echo "Could not resolve default branch from GitHub API for ${REPO}" >&2
+  exit 1
+fi
+
 PR_TITLE="${ISSUE_KEY}: ${SUMMARY}"
 PR_BODY=$(cat <<EOF
 Closes ${ISSUE_KEY}
@@ -127,7 +144,20 @@ Do not execute this task in any other repository.
 EOF
 )
 
-PR_URL="$(retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" gh pr create --repo "$REPO" --base "$DEFAULT_BRANCH" --head "$BRANCH" --title "$PR_TITLE" --body "$PR_BODY")"
+if [[ "$HAS_GH" -eq 1 ]]; then
+  PR_URL="$(retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" gh pr create --repo "$REPO" --base "$DEFAULT_BRANCH" --head "$BRANCH" --title "$PR_TITLE" --body "$PR_BODY")"
+else
+  PR_URL="$(retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" curl -sS --max-time 30 -X POST "https://api.github.com/repos/${REPO}/pulls" \
+    -H "Authorization: Bearer ${GITHUB_APP_TOKEN}" \
+    -H "Accept: application/vnd.github+json" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    -d "$(jq -cn --arg title "$PR_TITLE" --arg head "$BRANCH" --arg base "$DEFAULT_BRANCH" --arg body "$PR_BODY" '{title:$title,head:$head,base:$base,body:$body}')" | jq -r '.html_url')"
+fi
+
+if [[ -z "$PR_URL" || "$PR_URL" == "null" ]]; then
+  echo "Failed to create pull request for ${ISSUE_KEY}" >&2
+  exit 1
+fi
 echo "PR created: $PR_URL"
 
 COMMENT_MUTATION='mutation($id:String!,$body:String!){ commentCreate(input:{issueId:$id, body:$body}){ success } }'

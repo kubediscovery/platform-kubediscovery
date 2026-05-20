@@ -17,11 +17,14 @@ This directory contains helper scripts to automate Linear + GitHub flow for Code
 
 ## Required commands
 
-- `gh`
 - `jq`
 - `openssl`
 - `git`
 - `curl`
+
+Optional:
+
+- `gh` (if missing, scripts use GitHub REST API fallback)
 
 ## Usage
 

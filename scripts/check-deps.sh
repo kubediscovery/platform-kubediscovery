@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-required_commands=(gh jq openssl git curl)
+required_commands=(jq openssl git curl)
+optional_commands=(gh)
 missing=()
 
 for cmd in "${required_commands[@]}"; do
@@ -17,3 +18,11 @@ if [[ ${#missing[@]} -gt 0 ]]; then
 fi
 
 echo "All required commands are available: ${required_commands[*]}"
+
+for cmd in "${optional_commands[@]}"; do
+  if command -v "$cmd" >/dev/null 2>&1; then
+    echo "Optional command available: $cmd"
+  else
+    echo "Optional command missing: $cmd (script will use GitHub API fallback)"
+  fi
+done
