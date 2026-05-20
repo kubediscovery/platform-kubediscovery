@@ -1,3 +1,4 @@
+// Package main boots the kd-store gRPC process using Uber Fx modules.
 package main
 
 import (
