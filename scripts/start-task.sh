@@ -21,6 +21,14 @@ TEAM_KEY="${TEAM_KEY:-DEVENG}"
 RETRY_ATTEMPTS="${RETRY_ATTEMPTS:-5}"
 RETRY_DELAY_SECONDS="${RETRY_DELAY_SECONDS:-3}"
 
+require_env() {
+  local var_name="$1"
+  if [[ -z "${!var_name:-}" ]]; then
+    echo "Missing required env var: ${var_name}" >&2
+    exit 1
+  fi
+}
+
 retry() {
   local attempts="$1"
   local delay="$2"
@@ -48,6 +56,14 @@ fi
 if [[ -n "${GITHUB_APP_PRIVATE_KEY:-}" ]] && [[ "${GITHUB_APP_PRIVATE_KEY}" != *"BEGIN "*"PRIVATE KEY"* ]]; then
   GITHUB_APP_PRIVATE_KEY="$(printf '%s' "$GITHUB_APP_PRIVATE_KEY" | base64 -d)"
   export GITHUB_APP_PRIVATE_KEY
+fi
+
+require_env "GITHUB_APP_ID"
+require_env "GITHUB_APP_INSTALLATION_ID"
+require_env "LINEAR_API_KEY"
+if [[ -z "${GITHUB_APP_PRIVATE_KEY:-}" ]]; then
+  echo "Missing required env var: GITHUB_APP_PRIVATE_KEY or GITHUB_APP_PRIVATE_KEY_B64" >&2
+  exit 1
 fi
 
 github_app_token() {
