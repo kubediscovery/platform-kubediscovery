@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Synera — Consultoria em TI, DevOps e Platform Engineering. Kubernetes, pipelines, automações, IDP e muito mais." />
+  <title>Synera | Consultoria DevOps & Platform Engineering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ===== NAVIGATION ===== -->
+  <header class="nav-header" id="nav-header">
+    <div class="container nav-container">
+      <a href="#home" class="nav-logo" aria-label="Synera Home">
+        <span class="nav-logo-mark">S</span>
+        <span class="nav-logo-text">Synera</span>
+      </a>
+
+      <nav class="nav-links" id="nav-links" aria-label="Navegação principal">
+        <a href="#sobre" class="nav-link">Sobre</a>
+        <a href="#servicos" class="nav-link">Serviços</a>
+        <a href="#treinamento" class="nav-link">Treinamento</a>
+        <a href="#contato" class="nav-link">Contato</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="#contato" class="btn btn-primary btn-sm">Fale Conosco</a>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav-links">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="home">
+      <div class="container hero-container">
+        <div class="hero-content">
+          <div class="hero-badge">Platform Engineering · DevOps · Cloud Native</div>
+          <h1 class="hero-title">
+            Infraestrutura que<br />
+            <span class="hero-title-highlight">escala com você</span>
+          </h1>
+          <p class="hero-subtitle">
+            A Synera conecta times de engenharia a uma plataforma interna robusta —
+            com Kubernetes, pipelines, automações e governança de plataforma prontos para produção.
+          </p>
+          <div class="hero-actions">
+            <a href="https://wa.me/55SEUNUMERO?text=Ol%C3%A1%2C%20gostaria%20de%20conhecer%20os%20servi%C3%A7os%20da%20Synera"
+               class="btn btn-primary btn-lg"
+               target="_blank" rel="noopener noreferrer">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.119 1.529 5.845L.057 23.927l6.234-1.635A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.795 9.795 0 01-4.988-1.365l-.357-.213-3.7.97.988-3.607-.233-.37A9.785 9.785 0 012.182 12C2.182 6.578 6.578 2.182 12 2.182S21.818 6.578 21.818 12 17.422 21.818 12 21.818z"/>
+              </svg>
+              Fale pelo WhatsApp
+            </a>
+            <a href="#servicos" class="btn btn-secondary btn-lg">
+              Explorar Serviços
+            </a>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-diagram">
+            <div class="diagram-node diagram-node--center">
+              <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2"/>
+                <path d="M10 20h20M20 10v20M14 14l12 12M26 14L14 26" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span>Platform</span>
+            </div>
+            <div class="diagram-node diagram-node--k8s">
+              <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                <polygon points="20,4 36,12 36,28 20,36 4,28 4,12" stroke="currentColor" stroke-width="2" fill="none"/>
+                <circle cx="20" cy="20" r="5" fill="currentColor" opacity="0.3"/>
+              </svg>
+              <span>K8s</span>
+            </div>
+            <div class="diagram-node diagram-node--ci">
+              <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                <rect x="6" y="6" width="28" height="28" rx="4" stroke="currentColor" stroke-width="2"/>
+                <path d="M13 20h14M20 13l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>CI/CD</span>
+            </div>
+            <div class="diagram-node diagram-node--go">
+              <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                <circle cx="20" cy="20" r="16" stroke="currentColor" stroke-width="2"/>
+                <text x="20" y="25" text-anchor="middle" fill="currentColor" font-size="12" font-weight="bold">Go</text>
+              </svg>
+              <span>Golang</span>
+            </div>
+            <div class="diagram-node diagram-node--idp">
+              <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                <rect x="4" y="10" width="32" height="20" rx="3" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 20h16M12 24h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span>IDP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-wave" aria-hidden="true">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
+          <path d="M0,40 C360,70 1080,10 1440,40 L1440,60 L0,60 Z" fill="var(--color-white)"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ===== LOGOS / TRUST BAR ===== -->
+    <section class="trust-bar" aria-label="Tecnologias que dominamos">
+      <div class="container">
+        <p class="trust-bar-label">Tecnologias e práticas que aplicamos</p>
+        <div class="trust-bar-items">
+          <span class="trust-tag">Kubernetes</span>
+          <span class="trust-tag">Terraform</span>
+          <span class="trust-tag">ArgoCD</span>
+          <span class="trust-tag">Golang</span>
+          <span class="trust-tag">Backstage</span>
+          <span class="trust-tag">Prometheus</span>
+          <span class="trust-tag">GitHub Actions</span>
+          <span class="trust-tag">Crossplane</span>
+          <span class="trust-tag">Helm</span>
+          <span class="trust-tag">OpenTelemetry</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SOBRE ===== -->
+    <section class="section section--white" id="sobre">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-badge">Sobre a Synera</div>
+          <h2 class="section-title">Engenharia de plataforma para times que precisam evoluir rápido</h2>
+          <p class="section-subtitle">
+            A Synera é uma consultoria especializada em DevOps, Platform Engineering e Cloud Native.
+            Ajudamos times de desenvolvimento a construir plataformas internas escaláveis,
+            adotar Kubernetes em produção e implementar pipelines de entrega contínua robustos.
+          </p>
+        </div>
+
+        <div class="pillars-grid">
+          <div class="pillar-card">
+            <div class="pillar-icon pillar-icon--orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </div>
+            <h3 class="pillar-title">Diagnóstico Técnico</h3>
+            <p class="pillar-text">
+              Avaliamos sua infraestrutura atual, identificamos gargalos, débitos técnicos
+              e propomos um roadmap claro para modernização.
+            </p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon pillar-icon--blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <h3 class="pillar-title">Implementação Guiada</h3>
+            <p class="pillar-text">
+              Trabalhamos lado a lado com seu time — não apenas entregamos soluções, mas
+              transferimos o conhecimento necessário para a autonomia interna.
+            </p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon pillar-icon--orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+            </div>
+            <h3 class="pillar-title">Capacitação de Times</h3>
+            <p class="pillar-text">
+              Treinamentos in-company sob medida para engenheiros, SREs e líderes técnicos
+              que precisam dominar ferramentas modernas de plataforma.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SERVIÇOS ===== -->
+    <section class="section section--gray" id="servicos">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-badge">Serviços</div>
+          <h2 class="section-title">O que a Synera entrega para o seu time</h2>
+          <p class="section-subtitle">
+            Soluções práticas para os desafios mais comuns em times de engenharia modernos.
+          </p>
+        </div>
+
+        <div class="services-grid">
+
+          <article class="service-card">
+            <div class="service-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
+            <h3 class="service-card-title">Kubernetes em Produção</h3>
+            <p class="service-card-text">
+              Setup e hardening de clusters, estratégias de multi-tenancy, autoscaling,
+              política de rede, RBAC e gestão de workloads críticos em produção.
+            </p>
+            <ul class="service-card-tags">
+              <li>EKS / GKE / AKS</li>
+              <li>Helm Charts</li>
+              <li>Karpenter</li>
+              <li>Network Policies</li>
+            </ul>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <h3 class="service-card-title">Pipelines CI/CD</h3>
+            <p class="service-card-text">
+              Pipelines rápidos, seguros e reprodutíveis. Da build ao deploy em produção,
+              com gates de qualidade, testes automatizados e rollbacks confiáveis.
+            </p>
+            <ul class="service-card-tags">
+              <li>GitHub Actions</li>
+              <li>ArgoCD</li>
+              <li>GitOps</li>
+              <li>Tekton</li>
+            </ul>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+            </div>
+            <h3 class="service-card-title">Internal Developer Platform</h3>
+            <p class="service-card-text">
+              Construção de portais de desenvolvedor (IDP) com Backstage e ferramentas self-service
+              que reduzem o atrito do dev no dia a dia e aumentam a autonomia dos times.
+            </p>
+            <ul class="service-card-tags">
+              <li>Backstage</li>
+              <li>Service Catalog</li>
+              <li>Templates</li>
+              <li>Crossplane</li>
+            </ul>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <h3 class="service-card-title">Infraestrutura como Código</h3>
+            <p class="service-card-text">
+              Automação de provisionamento e gestão de infraestrutura cloud com Terraform,
+              Crossplane e políticas de conformidade aplicadas por código.
+            </p>
+            <ul class="service-card-tags">
+              <li>Terraform</li>
+              <li>AWS / GCP / Azure</li>
+              <li>Atlantis</li>
+              <li>OPA / Conftest</li>
+            </ul>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/>
+              </svg>
+            </div>
+            <h3 class="service-card-title">Observabilidade</h3>
+            <p class="service-card-text">
+              Implementação de observability stack completa — métricas, logs e traces —
+              para visibilidade total de sistemas distribuídos e SLOs bem definidos.
+            </p>
+            <ul class="service-card-tags">
+              <li>Prometheus / Grafana</li>
+              <li>OpenTelemetry</li>
+              <li>Loki</li>
+              <li>SLO / SLA</li>
+            </ul>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <circle cx="12" cy="12" r="4"/>
+                <line x1="1.05" y1="12" x2="7" y2="12"/>
+                <line x1="17" y1="12" x2="22.95" y2="12"/>
+                <line x1="12" y1="1.05" x2="12" y2="7"/>
+                <line x1="12" y1="17" x2="12" y2="22.95"/>
+              </svg>
+            </div>
+            <h3 class="service-card-title">Desenvolvimento em Golang</h3>
+            <p class="service-card-text">
+              Desenvolvimento de ferramentas internas, CLIs, operadores Kubernetes e
+              microsserviços de alta performance em Go — idiomático, testável e mantível.
+            </p>
+            <ul class="service-card-tags">
+              <li>Go Microservices</li>
+              <li>K8s Operators</li>
+              <li>gRPC / REST APIs</li>
+              <li>CLI Tools</li>
+            </ul>
+          </article>
+
+        </div>
+
+        <div class="services-cta">
+          <p>Não encontrou o que precisa?</p>
+          <a href="#contato" class="btn btn-primary btn-md">Fale com um especialista</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TREINAMENTO ===== -->
+    <section class="section section--blue" id="treinamento">
+      <div class="container">
+        <div class="section-header section-header--light">
+          <div class="section-badge section-badge--light">Treinamento In-Company</div>
+          <h2 class="section-title">Capacite seu time com quem vive na prática</h2>
+          <p class="section-subtitle">
+            Workshops e treinamentos customizados aplicados diretamente no contexto do seu negócio —
+            com cases reais, hands-on e foco em adoção rápida.
+          </p>
+        </div>
+
+        <div class="training-grid">
+
+          <div class="training-card">
+            <div class="training-card-header">
+              <div class="training-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="training-card-title">Kubernetes Essentials</h3>
+                <span class="training-card-duration">16–24h · Turma ou individual</span>
+              </div>
+            </div>
+            <p class="training-card-text">
+              Da teoria à operação: pods, deployments, services, ingress, RBAC,
+              storage, autoscaling e troubleshooting em ambientes reais.
+            </p>
+            <div class="training-card-level">
+              <span class="level-badge level-badge--intro">Iniciante</span>
+              <span class="level-badge level-badge--advanced">Avançado</span>
+            </div>
+          </div>
+
+          <div class="training-card">
+            <div class="training-card-header">
+              <div class="training-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="training-card-title">GitOps & CI/CD Avançado</h3>
+                <span class="training-card-duration">8–16h · Remoto ou presencial</span>
+              </div>
+            </div>
+            <p class="training-card-text">
+              Estratégias de GitOps com ArgoCD, pipelines multi-stage, promoção
+              de ambientes e deploy progressivo com feature flags e canary releases.
+            </p>
+            <div class="training-card-level">
+              <span class="level-badge level-badge--intermediate">Intermediário</span>
+            </div>
+          </div>
+
+          <div class="training-card">
+            <div class="training-card-header">
+              <div class="training-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <rect x="2" y="3" width="20" height="14" rx="2"/>
+                  <line x1="8" y1="21" x2="16" y2="21"/>
+                  <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="training-card-title">Platform Engineering na Prática</h3>
+                <span class="training-card-duration">16–32h · Workshop intensivo</span>
+              </div>
+            </div>
+            <p class="training-card-text">
+              Como construir um IDP do zero: portais, templates de serviço, catálogo,
+              self-service e a cultura de platform engineering que habilita times.
+            </p>
+            <div class="training-card-level">
+              <span class="level-badge level-badge--advanced">Avançado</span>
+            </div>
+          </div>
+
+          <div class="training-card">
+            <div class="training-card-header">
+              <div class="training-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <circle cx="12" cy="12" r="4"/>
+                  <path d="M16.24 7.76a6 6 0 010 8.49m-8.48-.01a6 6 0 010-8.49m11.31-2.82a10 10 0 010 14.14m-14.14 0a10 10 0 010-14.14"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="training-card-title">Observabilidade com OpenTelemetry</h3>
+                <span class="training-card-duration">8h · Workshop prático</span>
+              </div>
+            </div>
+            <p class="training-card-text">
+              Instrumentação de aplicações, coleta de métricas/traces/logs,
+              dashboards Grafana e definição de SLOs alinhados ao negócio.
+            </p>
+            <div class="training-card-level">
+              <span class="level-badge level-badge--intermediate">Intermediário</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="training-custom">
+          <div class="training-custom-content">
+            <h3>Precisa de algo customizado?</h3>
+            <p>Desenvolvemos trilhas de capacitação 100% alinhadas ao stack e desafios do seu time.</p>
+          </div>
+          <a href="#contato" class="btn btn-white btn-md">Solicitar Treinamento</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CONTATO ===== -->
+    <section class="section section--white" id="contato">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-badge">Contato</div>
+          <h2 class="section-title">Pronto para evoluir sua plataforma?</h2>
+          <p class="section-subtitle">
+            Escolha o canal que preferir. Retornamos em até 24h em dias úteis.
+          </p>
+        </div>
+
+        <div class="contact-grid">
+
+          <div class="contact-card contact-card--primary">
+            <div class="contact-card-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.557 4.119 1.529 5.845L.057 23.927l6.234-1.635A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.795 9.795 0 01-4.988-1.365l-.357-.213-3.7.97.988-3.607-.233-.37A9.785 9.785 0 012.182 12C2.182 6.578 6.578 2.182 12 2.182S21.818 6.578 21.818 12 17.422 21.818 12 21.818z"/>
+              </svg>
+            </div>
+            <h3 class="contact-card-title">WhatsApp</h3>
+            <p class="contact-card-text">
+              Resposta rápida para primeiros contatos, dúvidas sobre serviços
+              e agendamento de diagnóstico gratuito.
+            </p>
+            <a href="https://wa.me/55SEUNUMERO?text=Ol%C3%A1%21+Gostaria+de+conversar+sobre+os+servi%C3%A7os+da+Synera."
+               class="btn btn-primary btn-md contact-card-btn"
+               target="_blank" rel="noopener noreferrer">
+              Iniciar conversa
+            </a>
+          </div>
+
+          <div class="contact-card contact-card--ai">
+            <div class="contact-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                <circle cx="9" cy="10" r="1" fill="currentColor"/>
+                <circle cx="12" cy="10" r="1" fill="currentColor"/>
+                <circle cx="15" cy="10" r="1" fill="currentColor"/>
+              </svg>
+            </div>
+            <h3 class="contact-card-title">Chat com IA</h3>
+            <p class="contact-card-text">
+              Converse com nossa IA especializada em DevOps e Platform Engineering.
+              Tire dúvidas técnicas, explore cases e receba recomendações preliminares.
+            </p>
+            <button class="btn btn-secondary btn-md contact-card-btn" id="open-ai-chat" type="button">
+              Abrir Chat
+            </button>
+          </div>
+
+          <div class="contact-card">
+            <div class="contact-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </div>
+            <h3 class="contact-card-title">E-mail</h3>
+            <p class="contact-card-text">
+              Para propostas formais, contratos e comunicações detalhadas
+              sobre projetos e parcerias comerciais.
+            </p>
+            <a href="mailto:contato@synera.com.br"
+               class="btn btn-outline btn-md contact-card-btn">
+              contato@synera.com.br
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container footer-container">
+      <div class="footer-brand">
+        <a href="#home" class="nav-logo footer-logo" aria-label="Synera Home">
+          <span class="nav-logo-mark">S</span>
+          <span class="nav-logo-text">Synera</span>
+        </a>
+        <p class="footer-tagline">
+          Consultoria em TI, DevOps &amp; Platform Engineering.
+        </p>
+      </div>
+
+      <nav class="footer-nav" aria-label="Links de rodapé">
+        <div class="footer-nav-group">
+          <h4 class="footer-nav-title">Serviços</h4>
+          <ul>
+            <li><a href="#servicos">Kubernetes</a></li>
+            <li><a href="#servicos">CI/CD Pipelines</a></li>
+            <li><a href="#servicos">Internal Developer Platform</a></li>
+            <li><a href="#servicos">Infraestrutura como Código</a></li>
+            <li><a href="#servicos">Observabilidade</a></li>
+            <li><a href="#servicos">Golang</a></li>
+          </ul>
+        </div>
+        <div class="footer-nav-group">
+          <h4 class="footer-nav-title">Empresa</h4>
+          <ul>
+            <li><a href="#sobre">Sobre</a></li>
+            <li><a href="#treinamento">Treinamento</a></li>
+            <li><a href="#contato">Contato</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container">
+        <p>&copy; <span id="footer-year">2024</span> Synera. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== AI CHAT WIDGET ===== -->
+  <div class="ai-chat-widget" id="ai-chat-widget" role="dialog" aria-modal="true" aria-label="Chat com IA Synera" hidden>
+    <div class="ai-chat-header">
+      <div class="ai-chat-header-info">
+        <div class="ai-chat-avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+            <circle cx="9" cy="10" r="1" fill="currentColor"/>
+            <circle cx="12" cy="10" r="1" fill="currentColor"/>
+            <circle cx="15" cy="10" r="1" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <p class="ai-chat-name">Synera AI</p>
+          <p class="ai-chat-status">Especialista em DevOps &amp; Platform Engineering</p>
+        </div>
+      </div>
+      <button class="ai-chat-close" id="close-ai-chat" aria-label="Fechar chat" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="ai-chat-messages" id="ai-chat-messages" role="log" aria-live="polite">
+      <div class="ai-chat-message ai-chat-message--bot">
+        <p>Olá! Sou a IA da Synera. Posso ajudar com dúvidas sobre Kubernetes, DevOps, Platform Engineering ou nossos serviços. Como posso ajudar?</p>
+      </div>
+      <div class="ai-chat-suggestions">
+        <button class="ai-chat-suggestion" type="button">O que é Platform Engineering?</button>
+        <button class="ai-chat-suggestion" type="button">Como funciona o diagnóstico gratuito?</button>
+        <button class="ai-chat-suggestion" type="button">Quais treinamentos vocês oferecem?</button>
+      </div>
+    </div>
+    <form class="ai-chat-input-area" id="ai-chat-form" autocomplete="off">
+      <input
+        type="text"
+        class="ai-chat-input"
+        id="ai-chat-input"
+        placeholder="Escreva sua dúvida..."
+        aria-label="Escreva sua mensagem"
+        maxlength="500"
+      />
+      <button class="ai-chat-send" type="submit" aria-label="Enviar mensagem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- Floating chat button -->
+  <button class="ai-chat-fab" id="ai-chat-fab" type="button" aria-label="Abrir chat com IA">
+    <svg class="ai-chat-fab-icon ai-chat-fab-icon--open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      <circle cx="9" cy="10" r="1" fill="currentColor"/>
+      <circle cx="12" cy="10" r="1" fill="currentColor"/>
+      <circle cx="15" cy="10" r="1" fill="currentColor"/>
+    </svg>
+    <svg class="ai-chat-fab-icon ai-chat-fab-icon--close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" hidden>
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+    <span class="ai-chat-fab-label">IA</span>
+  </button>
+
+  <script src="script.js"></script>
+</body>
+</html>
