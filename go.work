@@ -6,4 +6,5 @@ use (
 	./libs
 	./services/kd-gateway
 	./services/kd-store
+	./services/kd-agent
 )
