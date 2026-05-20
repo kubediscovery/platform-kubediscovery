@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -16,6 +17,9 @@ import (
 
 	"github.com/kubediscovery/kd-store/configs"
 )
+
+// defaultSSLMode is the SSL mode applied when none is specified in config.
+const defaultSSLMode = "disable"
 
 // Pool is a type alias so callers can depend on the concrete *pgxpool.Pool
 // directly while still having a clear import boundary.
@@ -71,7 +75,7 @@ func NewPool(p Params) (*Pool, error) {
 			)
 			return nil
 		},
-		OnStop: func(ctx context.Context) error {
+		OnStop: func(_ context.Context) error {
 			pool.Close()
 			p.Logger.Info("database pool closed")
 			return nil
@@ -84,13 +88,13 @@ func NewPool(p Params) (*Pool, error) {
 // buildConnString assembles a PostgreSQL DSN from DatabaseConfig fields.
 func buildConnString(cfg configs.DatabaseConfig) (string, error) {
 	if cfg.Host == "" {
-		return "", fmt.Errorf("database host is required")
+		return "", errors.New("database host is required")
 	}
 	if cfg.Name == "" {
-		return "", fmt.Errorf("database name is required")
+		return "", errors.New("database name is required")
 	}
 	if cfg.User == "" {
-		return "", fmt.Errorf("database user is required")
+		return "", errors.New("database user is required")
 	}
 
 	dsn := fmt.Sprintf(
@@ -98,7 +102,7 @@ func buildConnString(cfg configs.DatabaseConfig) (string, error) {
 		cfg.Host, cfg.Port, cfg.Name, cfg.User, sslMode(cfg.SSLMode),
 	)
 	if cfg.Password != "" {
-		dsn += fmt.Sprintf(" password=%s", cfg.Password)
+		dsn += " password=" + cfg.Password
 	}
 	return dsn, nil
 }
@@ -139,10 +143,10 @@ func applyPoolSettings(poolCfg *pgxpool.Config, cfg configs.DatabaseConfig) erro
 	return nil
 }
 
-// sslMode returns "disable" when the configured value is empty.
+// sslMode returns defaultSSLMode when the configured value is empty.
 func sslMode(s string) string {
 	if s == "" {
-		return "disable"
+		return defaultSSLMode
 	}
 	return s
 }

@@ -1,3 +1,4 @@
+// Package validator provides input validation helpers.
 package validator
 
 import "strings"

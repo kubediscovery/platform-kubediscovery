@@ -13,7 +13,7 @@ import (
 	"log/slog"
 
 	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
+	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5" // registers the pgx/v5 driver with golang-migrate
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"go.uber.org/fx"
 
@@ -147,13 +147,13 @@ func buildMigrate(cfg configs.DatabaseConfig, logger *slog.Logger) (*migrate.Mig
 // before opening the sql.DB connection.
 func buildMigrateDSN(cfg configs.DatabaseConfig) (string, error) {
 	if cfg.Host == "" {
-		return "", fmt.Errorf("migrations: database host is required")
+		return "", errors.New("migrations: database host is required")
 	}
 	if cfg.Name == "" {
-		return "", fmt.Errorf("migrations: database name is required")
+		return "", errors.New("migrations: database name is required")
 	}
 	if cfg.User == "" {
-		return "", fmt.Errorf("migrations: database user is required")
+		return "", errors.New("migrations: database user is required")
 	}
 
 	dsn := fmt.Sprintf(
