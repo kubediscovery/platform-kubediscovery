@@ -4,5 +4,6 @@ toolchain go1.26.3
 
 use (
 	./libs
+	./services/kd-gateway
 	./services/kd-store
 )

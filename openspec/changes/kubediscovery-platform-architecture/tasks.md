@@ -31,7 +31,7 @@
 ## 4. Phase 1 — kd-gateway (Control Plane Core)
 
 - [ ] 4.1 Criar módulo `services/kd-gateway/` com `go.mod` (`github.com/kubediscovery/kd-gateway`)
-- [ ] 4.2 Implementar `internal/infrastructure/grpc/server.go` com mTLS — carregar CA, certificado servidor e exigir certificado cliente
+- [x] 4.2 Implementar `internal/infrastructure/grpc/server.go` com mTLS — carregar CA, certificado servidor e exigir certificado cliente
 - [ ] 4.3 Implementar handler gRPC bidirecional `internal/core/agent/handler/grpc_handler.go` — aceitar stream, registrar agente por `caller_id`, indexar em mapa em memória
 - [ ] 4.4 Implementar detecção de desconexão via heartbeat — marcar agente como `disconnected` ao expirar TTL
 - [ ] 4.5 Implementar lógica de roteamento de comandos para agente por `caller_id` — retornar `UNAVAILABLE` se agente offline
