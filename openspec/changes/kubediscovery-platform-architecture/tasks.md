@@ -13,7 +13,7 @@
 - [ ] 2.3 Criar `proto/kubediscovery/v1/analyzer.proto` com `AnalysisRequest`, `AnalysisResult` e `MemoryKey`
 - [ ] 2.4 Criar `proto/kubediscovery/v1/mcp.proto` com contrato entre `kd-mcp` e `kd-gateway`
 - [ ] 2.5 Criar `scripts/proto-gen.sh` e `Makefile` target `proto-gen` para geração de código Go em `libs/core/v1/`
-- [ ] 2.6 Executar `make proto-gen` e verificar que os arquivos `*.pb.go` são gerados corretamente em `libs/`
+- [x] 2.6 Executar `make proto-gen` e verificar que os arquivos `*.pb.go` são gerados corretamente em `libs/`
 
 ## 3. Phase 1 — kd-store (Infraestrutura de Dados)
 

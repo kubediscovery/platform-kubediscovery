@@ -36,10 +36,8 @@ protoc \
   -I "$ROOT_DIR/proto" \
   --go_out="$OUT_DIR" \
   --go_opt=module="$MODULE_PATH" \
-  --go_opt=paths=source_relative \
   --go-grpc_out="$OUT_DIR" \
   --go-grpc_opt=module="$MODULE_PATH" \
-  --go-grpc_opt=paths=source_relative \
   "${PROTO_FILES[@]}"
 
 echo "Done. Generated files under libs/core/v1/."
