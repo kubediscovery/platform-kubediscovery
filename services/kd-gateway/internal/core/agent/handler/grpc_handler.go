@@ -10,8 +10,8 @@
 //     If an active registration already exists for that caller_id the stream is
 //     rejected with codes.AlreadyExists (conflict policy: reject the new stream).
 //  4. Subsequent frames are AgentHeartbeat or AgentCommandResult.
-//     Heartbeats update LastSeenAt in the registry; command results are currently
-//     logged (routing to waiters is introduced in task 4.5).
+//     Heartbeats update LastSeenAt in the registry; command results are forwarded
+//     to the ResultSink (typically the Router) which matches them to waiting callers.
 //  5. When the stream ends (agent disconnect or context cancellation) the agent
 //     is deregistered and its status set to StatusDisconnected.
 package handler
@@ -28,19 +28,31 @@ import (
 	"github.com/kubediscovery/kd-gateway/internal/core/agent/registry"
 )
 
+// ResultSink receives AgentCommandResult frames from the agent stream loop and
+// routes them back to the caller waiting on the matching request_id.
+//
+// The Router in internal/core/agent/router implements this interface.
+// Passing nil disables result routing (command results are only logged).
+type ResultSink interface {
+	Deliver(result *gatewayv1.AgentCommandResult)
+}
+
 // Handler implements gatewayv1.GatewayServiceServer.
 type Handler struct {
 	gatewayv1.UnimplementedGatewayServiceServer
 
-	registry *registry.Registry
-	log      *slog.Logger
+	registry   *registry.Registry
+	resultSink ResultSink // nil-safe: results are logged but not routed when nil
+	log        *slog.Logger
 }
 
-// New constructs a Handler wired to the given Registry and logger.
-func New(reg *registry.Registry, log *slog.Logger) *Handler {
+// New constructs a Handler wired to the given Registry, logger, and result sink.
+// Passing nil for sink disables active result routing.
+func New(reg *registry.Registry, log *slog.Logger, sink ResultSink) *Handler {
 	return &Handler{
-		registry: reg,
-		log:      log,
+		registry:   reg,
+		resultSink: sink,
+		log:        log,
 	}
 }
 
@@ -134,6 +146,9 @@ func (h *Handler) AgentStream(
 				slog.Bool("success", result.GetSuccess()),
 				slog.String("message", result.GetMessage()),
 			)
+			if h.resultSink != nil {
+				h.resultSink.Deliver(result)
+			}
 
 		default:
 			h.log.Warn("unexpected message type in stream",

@@ -100,6 +100,24 @@ func (r *Registry) Get(callerID string) (*entity.Agent, bool) {
 	return a, ok
 }
 
+// GetConnectedStream returns the live bidirectional stream for the agent
+// identified by callerID if and only if that agent is currently connected.
+//
+// The boolean return value is false when the agent is absent, disconnected,
+// or its stream reference has already been cleared.  Callers that need to
+// send a command to an agent should use this method instead of Get to avoid
+// a data race on the Stream field.
+func (r *Registry) GetConnectedStream(callerID string) (grpc.BidiStreamingServer[gatewayv1.AgentStreamMessage, gatewayv1.AgentStreamMessage], bool) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	a, ok := r.agents[callerID]
+	if !ok || a.Status != entity.StatusConnected || a.Stream == nil {
+		return nil, false
+	}
+	return a.Stream, true
+}
+
 // List returns a snapshot of all agent entries (connected and disconnected).
 // The returned slice owns its elements; mutating them does not affect the registry.
 func (r *Registry) List() []*entity.Agent {

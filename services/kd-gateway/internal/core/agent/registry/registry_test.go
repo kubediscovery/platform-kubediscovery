@@ -209,3 +209,36 @@ func TestRegistry_ExpireStale_ReducesConnectedCount(t *testing.T) {
 		t.Errorf("ConnectedCount() = %d after expiry, want 0", got)
 	}
 }
+
+func TestRegistry_GetConnectedStream_NilStream(t *testing.T) {
+	// An agent registered with a nil stream (common in unit tests) is considered
+	// not routable — GetConnectedStream must return false to prevent a nil-deref
+	// when the caller tries to send a command.
+	r := registry.New()
+	_ = r.Register("agent-1", nil, nil)
+
+	_, ok := r.GetConnectedStream("agent-1")
+	if ok {
+		t.Error("agent registered with nil stream should return ok=false")
+	}
+}
+
+func TestRegistry_GetConnectedStream_Disconnected(t *testing.T) {
+	r := registry.New()
+	_ = r.Register("agent-1", nil, nil)
+	r.Deregister("agent-1")
+
+	_, ok := r.GetConnectedStream("agent-1")
+	if ok {
+		t.Error("disconnected agent should return ok=false")
+	}
+}
+
+func TestRegistry_GetConnectedStream_Unknown(t *testing.T) {
+	r := registry.New()
+
+	_, ok := r.GetConnectedStream("nobody")
+	if ok {
+		t.Error("unknown agent should return ok=false")
+	}
+}
