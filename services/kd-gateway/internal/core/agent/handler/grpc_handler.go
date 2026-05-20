@@ -9,9 +9,9 @@
 //  3. The caller_id is used to register the agent in the in-memory Registry.
 //     If an active registration already exists for that caller_id the duplicate
 //     policy (configured via AGENT_DUPLICATE_POLICY) decides the outcome:
-//       - "reject_new" (default): reject the incoming stream with codes.AlreadyExists.
-//       - "evict_previous": forcibly terminate the existing stream (codes.Aborted) and
-//         accept the new connection.
+//     - "reject_new" (default): reject the incoming stream with codes.AlreadyExists.
+//     - "evict_previous": forcibly terminate the existing stream (codes.Aborted) and
+//     accept the new connection.
 //  4. Subsequent frames are AgentHeartbeat or AgentCommandResult.
 //     Heartbeats update LastSeenAt in the registry; command results are forwarded
 //     to the ResultSink (typically the Router) which matches them to waiting callers.
