@@ -24,33 +24,44 @@ var ErrAlreadyConnected = fmt.Errorf("agent already connected")
 
 // Registry is the thread-safe in-memory store for connected agents.
 type Registry struct {
-	mu     sync.RWMutex
-	agents map[string]*entity.Agent
+	mu         sync.RWMutex
+	agents     map[string]*entity.Agent
+	evictChans map[string]chan struct{} // per-callerID evict signal channels
 }
 
 // New returns an empty Registry ready for use.
 func New() *Registry {
 	return &Registry{
-		agents: make(map[string]*entity.Agent),
+		agents:     make(map[string]*entity.Agent),
+		evictChans: make(map[string]chan struct{}),
 	}
 }
 
 // Register adds a newly-connected agent to the registry.
 //
-// If a connected agent with the same caller_id already exists the call
-// returns ErrAlreadyConnected without modifying the registry.  The caller
-// decides the conflict resolution policy (e.g. reject new or evict old).
+// On success it returns a receive-only channel that will be closed when the
+// agent entry is forcibly evicted (e.g. by a ForceRegister call from a new
+// connection with the same caller_id).  The caller's stream loop should select
+// on this channel alongside stream.Recv() so that eviction is detected promptly.
+//
+// If a connected agent with the same caller_id already exists the call returns
+// (nil, ErrAlreadyConnected) without modifying the registry.  The caller
+// decides the conflict resolution policy (e.g. reject new or evict old via
+// ForceRegister).
 func (r *Registry) Register(
 	callerID string,
 	stream grpc.BidiStreamingServer[gatewayv1.AgentStreamMessage, gatewayv1.AgentStreamMessage],
 	metadata map[string]any,
-) error {
+) (<-chan struct{}, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	if existing, ok := r.agents[callerID]; ok && existing.Status == entity.StatusConnected {
-		return ErrAlreadyConnected
+		return nil, ErrAlreadyConnected
 	}
+
+	evictCh := make(chan struct{})
+	r.evictChans[callerID] = evictCh
 
 	now := time.Now()
 	r.agents[callerID] = &entity.Agent{
@@ -61,11 +72,58 @@ func (r *Registry) Register(
 		LastSeenAt:  now,
 		Status:      entity.StatusConnected,
 	}
-	return nil
+	return evictCh, nil
+}
+
+// ForceRegister atomically evicts any existing connected agent with the given
+// caller_id and registers a new one in its place.
+//
+// If a connected agent already occupies the caller_id, its evict channel is
+// closed (signalling the stream goroutine to terminate) and its registry entry
+// is immediately marked as StatusDisconnected before the new entry is written.
+// This ensures the new registration never races with Deregister from the old
+// stream goroutine.
+//
+// The returned channel is the evict channel for the newly registered agent; the
+// caller should select on it in the stream loop just like after a Register call.
+func (r *Registry) ForceRegister(
+	callerID string,
+	stream grpc.BidiStreamingServer[gatewayv1.AgentStreamMessage, gatewayv1.AgentStreamMessage],
+	metadata map[string]any,
+) <-chan struct{} {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	// Evict any existing connected agent.
+	if existing, ok := r.agents[callerID]; ok && existing.Status == entity.StatusConnected {
+		existing.Status = entity.StatusDisconnected
+		existing.Stream = nil
+		if ch, ok := r.evictChans[callerID]; ok {
+			close(ch)
+			delete(r.evictChans, callerID)
+		}
+	}
+
+	evictCh := make(chan struct{})
+	r.evictChans[callerID] = evictCh
+
+	now := time.Now()
+	r.agents[callerID] = &entity.Agent{
+		CallerID:    callerID,
+		Stream:      stream,
+		Metadata:    metadata,
+		ConnectedAt: now,
+		LastSeenAt:  now,
+		Status:      entity.StatusConnected,
+	}
+	return evictCh
 }
 
 // Deregister marks an agent as disconnected and clears its stream reference.
 // If no agent with the given callerID exists the call is a no-op.
+// It also removes the evict channel for the caller_id; if the old handler was
+// evicted it will already have set evicted=true and skip calling Deregister,
+// so there is no risk of overwriting a fresh registration.
 func (r *Registry) Deregister(callerID string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -74,6 +132,7 @@ func (r *Registry) Deregister(callerID string) {
 		a.Status = entity.StatusDisconnected
 		a.Stream = nil
 	}
+	delete(r.evictChans, callerID)
 }
 
 // TouchHeartbeat updates LastSeenAt for the agent identified by callerID.
@@ -152,6 +211,8 @@ func (r *Registry) ConnectedCount() int {
 //
 // This method is the write-side counterpart to TouchHeartbeat: the heartbeat
 // monitor calls it periodically to enforce TTL-based disconnection.
+// The evict channel for each expired agent is removed from the map but NOT
+// closed; TTL expiry is not the same as eviction by a new connection.
 func (r *Registry) ExpireStale(ttl time.Duration) []string {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -162,6 +223,9 @@ func (r *Registry) ExpireStale(ttl time.Duration) []string {
 		if a.Status == entity.StatusConnected && now.Sub(a.LastSeenAt) > ttl {
 			a.Status = entity.StatusDisconnected
 			a.Stream = nil
+			// Remove the channel from the map so a subsequent re-registration
+			// does not accidentally close a stale channel reference.
+			delete(r.evictChans, id)
 			expired = append(expired, id)
 		}
 	}

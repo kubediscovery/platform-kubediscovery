@@ -23,7 +23,9 @@ func newTestMonitor(reg *registry.Registry, ttl, interval time.Duration) (*heart
 
 func TestMonitor_ExpiresStalAgent(t *testing.T) {
 	reg := registry.New()
-	_ = reg.Register("stale-agent", nil, nil)
+	if _, err := reg.Register("stale-agent", nil, nil); err != nil {
+		t.Fatalf("Register: %v", err)
+	}
 
 	// Sleep so the agent's LastSeenAt is comfortably in the past.
 	time.Sleep(5 * time.Millisecond)
@@ -52,7 +54,9 @@ func TestMonitor_DoesNotExpireFreshAgent(t *testing.T) {
 	defer cancel()
 
 	// Register *after* the monitor is running so LastSeenAt is recent.
-	_ = reg.Register("fresh-agent", nil, nil)
+	if _, err := reg.Register("fresh-agent", nil, nil); err != nil {
+		t.Fatalf("Register: %v", err)
+	}
 
 	time.Sleep(30 * time.Millisecond)
 
@@ -67,7 +71,9 @@ func TestMonitor_DoesNotExpireFreshAgent(t *testing.T) {
 
 func TestMonitor_StopsOnContextCancel(t *testing.T) {
 	reg := registry.New()
-	_ = reg.Register("agent-x", nil, nil)
+	if _, err := reg.Register("agent-x", nil, nil); err != nil {
+		t.Fatalf("Register agent-x: %v", err)
+	}
 
 	// TTL=1ms so it would expire quickly if the monitor were still running.
 	_, cancel := newTestMonitor(reg, time.Millisecond, 2*time.Millisecond)
@@ -80,7 +86,9 @@ func TestMonitor_StopsOnContextCancel(t *testing.T) {
 
 	// Register a new agent *after* cancel and verify the monitor no longer
 	// expires it (it is stopped, so nothing can deregister this agent).
-	_ = reg.Register("agent-y", nil, nil)
+	if _, err := reg.Register("agent-y", nil, nil); err != nil {
+		t.Fatalf("Register agent-y: %v", err)
+	}
 	time.Sleep(10 * time.Millisecond)
 
 	a, _ := reg.Get("agent-y")
@@ -93,7 +101,9 @@ func TestMonitor_StopsOnContextCancel(t *testing.T) {
 
 func TestMonitor_HeartbeatResetsExpiry(t *testing.T) {
 	reg := registry.New()
-	_ = reg.Register("hb-agent", nil, nil)
+	if _, err := reg.Register("hb-agent", nil, nil); err != nil {
+		t.Fatalf("Register: %v", err)
+	}
 
 	// TTL=10ms, check every 5ms.
 	_, cancel := newTestMonitor(reg, 10*time.Millisecond, 5*time.Millisecond)
