@@ -1,6 +1,6 @@
 module github.com/kubediscovery/kd-libs
 
-go 1.26.3
+go 1.26.0
 
 require (
 	google.golang.org/grpc v1.81.1
