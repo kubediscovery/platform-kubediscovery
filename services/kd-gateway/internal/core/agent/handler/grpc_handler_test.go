@@ -55,9 +55,9 @@ func (m *mockStream) Send(msg *gatewayv1.AgentStreamMessage) error {
 
 func (m *mockStream) SetHeader(metadata.MD) error  { return nil }
 func (m *mockStream) SendHeader(metadata.MD) error { return nil }
-func (m *mockStream) SetTrailer(metadata.MD)        {}
-func (m *mockStream) RecvMsg(any) error             { return nil }
-func (m *mockStream) SendMsg(any) error             { return nil }
+func (m *mockStream) SetTrailer(metadata.MD)       {}
+func (m *mockStream) RecvMsg(any) error            { return nil }
+func (m *mockStream) SendMsg(any) error            { return nil }
 
 // --- helpers ---
 
