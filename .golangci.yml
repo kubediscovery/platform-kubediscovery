@@ -1,0 +1,98 @@
+version: "2"
+
+run:
+  concurrency: 4
+  timeout: 5m
+  tests: true
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 50
+
+linters:
+  enable:
+    # correctness
+    - govet
+    - staticcheck
+    - unused
+    - errcheck
+    - errorlint
+    - nilerr
+    - copyloopvar
+    - durationcheck
+    # style
+    - gocritic
+    - revive
+    - whitespace
+    - misspell
+    - errname
+    # complexity
+    - gocyclo
+    - funlen
+    # performance
+    - perfsprint
+    - unconvert
+    - ineffassign
+    - goconst
+    # security & resources
+    - gosec
+    - bodyclose
+    - sqlclosecheck
+    - rowserrcheck
+    # logging
+    - sloglint
+    # testing
+    - thelper
+    # modernization
+    - intrange
+    - usestdlibvars
+    - nolintlint
+
+  exclusions:
+    paths:
+      - vendor$
+      - third_party$
+    rules:
+      # Exclude generated protobuf files from all linters.
+      - path: \.pb\.go$
+        linters:
+          - govet
+          - staticcheck
+          - unused
+          - errcheck
+          - revive
+          - gocritic
+          - goconst
+          - gosec
+          - perfsprint
+          - unconvert
+          - misspell
+          - usestdlibvars
+
+  settings:
+    funlen:
+      lines: 120
+      statements: 80
+    gocyclo:
+      min-complexity: 15
+    goconst:
+      min-len: 3
+      min-occurrences: 4
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+    gosec:
+      excludes:
+        - G115  # integer overflow conversion — noisy in config/infra code
+
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    paths:
+      - vendor$
+      - third_party$
+    rules:
+      - path: \.pb\.go$
+        linters:
+          - gofmt

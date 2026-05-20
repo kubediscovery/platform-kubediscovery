@@ -20,9 +20,8 @@ profile.cov
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-# Go workspace files (local monorepo workspace)
-go.work
-go.work.sum
+# go.work and go.work.sum are committed — they define the monorepo workspace
+# and ensure reproducible builds across all modules.
 
 # env file
 .env
