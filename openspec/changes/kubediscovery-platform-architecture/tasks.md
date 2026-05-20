@@ -20,7 +20,7 @@
 - [ ] 3.1 Criar módulo `services/kd-store/` com `go.mod` (`github.com/kubediscovery/kd-store`)
 - [ ] 3.2 Implementar `internal/infrastructure/database/postgres.go` com pool pgx e configuração via Viper
 - [ ] 3.3 Implementar `internal/infrastructure/database/migrations.go` com golang-migrate aplicando migrations na inicialização
-- [ ] 3.4 Criar migration `000001_create_clusters_table.sql` com campos: `uid`, `name`, `environment`, `status`, `created_at`, `updated_at`
+- [x] 3.4 Criar migration `000001_create_clusters_table.sql` com campos: `uid`, `name`, `environment`, `status`, `created_at`, `updated_at`
 - [ ] 3.5 Criar migration `000002_create_events_table.sql` com campos: `id`, `cluster_uid`, `memory_key`, `severity`, `diagnosis`, `recommendations`, `created_at`
 - [ ] 3.6 Criar migration `000003_create_analysis_memory_table.sql` com coluna `embedding vector(1536)` e índice HNSW para pgvector
 - [ ] 3.7 Implementar `internal/infrastructure/cache/redis.go` com go-redis e configuração via Viper
