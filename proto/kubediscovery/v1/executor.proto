@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package kubediscovery.v1;
+
+option go_package = "github.com/kubediscovery/kd-libs/core/v1/executor;executorv1";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+// ExecutorCommand carries a Kubernetes operation request to kd-executor.
+message ExecutorCommand {
+  string request_id = 1;
+  string action_type = 2;
+  string source = 3;
+  string analysis_ref = 4;
+
+  string cluster_name = 5;
+  string environment = 6;
+  string namespace = 7;
+  string resource_kind = 8;
+  string resource_name = 9;
+
+  // Free-form action parameters (for example: replicas, container, tail).
+  map<string, string> params = 10;
+
+  google.protobuf.Struct metadata = 11;
+  google.protobuf.Timestamp sent_at = 12;
+}
+
+// ExecutorResponse returns execution status and command output.
+message ExecutorResponse {
+  string request_id = 1;
+  string action_type = 2;
+  bool success = 3;
+  string output = 4;
+  string error = 5;
+
+  string analysis_ref = 6;
+  string cluster_name = 7;
+  string environment = 8;
+  string namespace = 9;
+  string resource_kind = 10;
+  string resource_name = 11;
+
+  google.protobuf.Struct metadata = 12;
+  google.protobuf.Timestamp executed_at = 13;
+}
