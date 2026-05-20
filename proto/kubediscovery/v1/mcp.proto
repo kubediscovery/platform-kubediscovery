@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package kubediscovery.v1;
+
+option go_package = "github.com/kubediscovery/kd-libs/core/v1/mcp;mcpv1";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+// MCPGatewayService defines the contract between kd-mcp and kd-gateway.
+service MCPGatewayService {
+  // ExecuteTool routes a tool call requested by an MCP client to the target
+  // agent connected through kd-gateway.
+  rpc ExecuteTool(ExecuteToolRequest) returns (ExecuteToolResponse);
+
+  // AnalyzeCluster requests an on-demand cluster diagnosis handled by
+  // kd-analyzer through kd-gateway orchestration.
+  rpc AnalyzeCluster(AnalyzeClusterRequest) returns (AnalyzeClusterResponse);
+}
+
+// ExecuteToolRequest carries a normalized MCP tool invocation.
+message ExecuteToolRequest {
+  string request_id = 1;
+  string caller_id = 2;
+  string target_caller_id = 3;
+  string tool_name = 4;
+
+  string cluster_name = 5;
+  string environment = 6;
+  string namespace = 7;
+
+  // MCP tool arguments as free-form JSON-like structure.
+  google.protobuf.Struct arguments = 8;
+
+  // Additional context about the MCP client/session.
+  google.protobuf.Struct metadata = 9;
+  google.protobuf.Timestamp requested_at = 10;
+}
+
+// ExecuteToolResponse returns command execution output for MCP tool calls.
+message ExecuteToolResponse {
+  string request_id = 1;
+  string tool_name = 2;
+  bool success = 3;
+  string message = 4;
+
+  // Structured payload returned by kd-agent/kd-executor.
+  google.protobuf.Struct payload = 5;
+  string error_code = 6;
+
+  google.protobuf.Struct metadata = 7;
+  google.protobuf.Timestamp completed_at = 8;
+}
+
+// AnalyzeClusterRequest asks kd-gateway to orchestrate a diagnosis request.
+message AnalyzeClusterRequest {
+  string request_id = 1;
+  string caller_id = 2;
+
+  string cluster_name = 3;
+  string environment = 4;
+  string namespace = 5;
+  string resource_kind = 6;
+  string resource_name = 7;
+  string pod_phase = 8;
+
+  repeated string log_lines = 9;
+  repeated string event_messages = 10;
+
+  google.protobuf.Struct metadata = 11;
+  google.protobuf.Timestamp requested_at = 12;
+}
+
+// AnalyzeClusterResponse returns analysis details for MCP clients.
+message AnalyzeClusterResponse {
+  string request_id = 1;
+  bool success = 2;
+  string diagnosis = 3;
+  string severity = 4;
+  repeated string recommendations = 5;
+
+  string summary = 6;
+  string analysis_ref = 7;
+  string memory_key = 8;
+
+  google.protobuf.Struct metadata = 9;
+  string error_code = 10;
+  string message = 11;
+  google.protobuf.Timestamp analyzed_at = 12;
+}
