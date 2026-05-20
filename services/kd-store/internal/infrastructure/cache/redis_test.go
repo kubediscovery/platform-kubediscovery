@@ -7,6 +7,8 @@ import (
 	"github.com/kubediscovery/kd-store/configs"
 )
 
+const testRedisAddr = "localhost:6379"
+
 func TestBuildOptions_RequiredAddr(t *testing.T) {
 	_, err := buildOptions(configs.CacheConfig{Addr: ""})
 	if err == nil {
@@ -16,7 +18,7 @@ func TestBuildOptions_RequiredAddr(t *testing.T) {
 
 func TestBuildOptions_Defaults(t *testing.T) {
 	cfg := configs.CacheConfig{
-		Addr:     "localhost:6379",
+		Addr:     testRedisAddr,
 		Password: "secret",
 		DB:       1,
 	}
@@ -24,8 +26,8 @@ func TestBuildOptions_Defaults(t *testing.T) {
 	if err != nil {
 		t.Fatalf("buildOptions() unexpected error: %v", err)
 	}
-	if opts.Addr != "localhost:6379" {
-		t.Errorf("Addr = %q, want %q", opts.Addr, "localhost:6379")
+	if opts.Addr != testRedisAddr {
+		t.Errorf("Addr = %q, want %q", opts.Addr, testRedisAddr)
 	}
 	if opts.Password != "secret" {
 		t.Errorf("Password = %q, want %q", opts.Password, "secret")
@@ -37,7 +39,7 @@ func TestBuildOptions_Defaults(t *testing.T) {
 
 func TestBuildOptions_Timeouts(t *testing.T) {
 	cfg := configs.CacheConfig{
-		Addr:            "localhost:6379",
+		Addr:            testRedisAddr,
 		MaxRetries:      5,
 		MinRetryBackoff: "16ms",
 		MaxRetryBackoff: "1s",
@@ -88,27 +90,27 @@ func TestBuildOptions_InvalidDurations(t *testing.T) {
 	}{
 		{
 			name: "invalid min_retry_backoff",
-			cfg:  configs.CacheConfig{Addr: "localhost:6379", MinRetryBackoff: "notaduration"},
+			cfg:  configs.CacheConfig{Addr: testRedisAddr, MinRetryBackoff: "notaduration"},
 		},
 		{
 			name: "invalid max_retry_backoff",
-			cfg:  configs.CacheConfig{Addr: "localhost:6379", MaxRetryBackoff: "bad"},
+			cfg:  configs.CacheConfig{Addr: testRedisAddr, MaxRetryBackoff: "bad"},
 		},
 		{
 			name: "invalid dial_timeout",
-			cfg:  configs.CacheConfig{Addr: "localhost:6379", DialTimeout: "x"},
+			cfg:  configs.CacheConfig{Addr: testRedisAddr, DialTimeout: "x"},
 		},
 		{
 			name: "invalid read_timeout",
-			cfg:  configs.CacheConfig{Addr: "localhost:6379", ReadTimeout: "y"},
+			cfg:  configs.CacheConfig{Addr: testRedisAddr, ReadTimeout: "y"},
 		},
 		{
 			name: "invalid write_timeout",
-			cfg:  configs.CacheConfig{Addr: "localhost:6379", WriteTimeout: "z"},
+			cfg:  configs.CacheConfig{Addr: testRedisAddr, WriteTimeout: "z"},
 		},
 		{
 			name: "invalid pool_timeout",
-			cfg:  configs.CacheConfig{Addr: "localhost:6379", PoolTimeout: "bad-duration"},
+			cfg:  configs.CacheConfig{Addr: testRedisAddr, PoolTimeout: "bad-duration"},
 		},
 	}
 

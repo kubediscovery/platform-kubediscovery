@@ -18,16 +18,16 @@ package configs
 //	cache.min_idle_conns    → CACHE_MIN_IDLE_CONNS    (default: 2)
 //	cache.pool_timeout      → CACHE_POOL_TIMEOUT      (default: 4s)
 type CacheConfig struct {
-	Addr             string `mapstructure:"addr"`
-	Password         string `mapstructure:"password"`
-	DB               int    `mapstructure:"db"`
-	MaxRetries       int    `mapstructure:"max_retries"`
-	MinRetryBackoff  string `mapstructure:"min_retry_backoff"`
-	MaxRetryBackoff  string `mapstructure:"max_retry_backoff"`
-	DialTimeout      string `mapstructure:"dial_timeout"`
-	ReadTimeout      string `mapstructure:"read_timeout"`
-	WriteTimeout     string `mapstructure:"write_timeout"`
-	PoolSize         int    `mapstructure:"pool_size"`
-	MinIdleConns     int    `mapstructure:"min_idle_conns"`
-	PoolTimeout      string `mapstructure:"pool_timeout"`
+	Addr            string `mapstructure:"addr"`
+	Password        string `mapstructure:"password"`
+	DB              int    `mapstructure:"db"`
+	MaxRetries      int    `mapstructure:"max_retries"`
+	MinRetryBackoff string `mapstructure:"min_retry_backoff"`
+	MaxRetryBackoff string `mapstructure:"max_retry_backoff"`
+	DialTimeout     string `mapstructure:"dial_timeout"`
+	ReadTimeout     string `mapstructure:"read_timeout"`
+	WriteTimeout    string `mapstructure:"write_timeout"`
+	PoolSize        int    `mapstructure:"pool_size"`
+	MinIdleConns    int    `mapstructure:"min_idle_conns"`
+	PoolTimeout     string `mapstructure:"pool_timeout"`
 }

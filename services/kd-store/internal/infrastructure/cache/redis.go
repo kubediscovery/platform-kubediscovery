@@ -82,62 +82,45 @@ func buildOptions(cfg configs.CacheConfig) (*redis.Options, error) {
 	if cfg.MaxRetries > 0 {
 		opts.MaxRetries = cfg.MaxRetries
 	}
-
 	if cfg.PoolSize > 0 {
 		opts.PoolSize = cfg.PoolSize
 	}
-
 	if cfg.MinIdleConns > 0 {
 		opts.MinIdleConns = cfg.MinIdleConns
 	}
 
-	if cfg.MinRetryBackoff != "" {
-		d, err := time.ParseDuration(cfg.MinRetryBackoff)
-		if err != nil {
-			return nil, fmt.Errorf("invalid min_retry_backoff %q: %w", cfg.MinRetryBackoff, err)
-		}
-		opts.MinRetryBackoff = d
+	setters := []struct {
+		raw   string
+		field string
+		set   func(time.Duration)
+	}{
+		{cfg.MinRetryBackoff, "min_retry_backoff", func(d time.Duration) { opts.MinRetryBackoff = d }},
+		{cfg.MaxRetryBackoff, "max_retry_backoff", func(d time.Duration) { opts.MaxRetryBackoff = d }},
+		{cfg.DialTimeout, "dial_timeout", func(d time.Duration) { opts.DialTimeout = d }},
+		{cfg.ReadTimeout, "read_timeout", func(d time.Duration) { opts.ReadTimeout = d }},
+		{cfg.WriteTimeout, "write_timeout", func(d time.Duration) { opts.WriteTimeout = d }},
+		{cfg.PoolTimeout, "pool_timeout", func(d time.Duration) { opts.PoolTimeout = d }},
 	}
 
-	if cfg.MaxRetryBackoff != "" {
-		d, err := time.ParseDuration(cfg.MaxRetryBackoff)
-		if err != nil {
-			return nil, fmt.Errorf("invalid max_retry_backoff %q: %w", cfg.MaxRetryBackoff, err)
+	for _, s := range setters {
+		if err := parseDuration(s.raw, s.field, s.set); err != nil {
+			return nil, err
 		}
-		opts.MaxRetryBackoff = d
-	}
-
-	if cfg.DialTimeout != "" {
-		d, err := time.ParseDuration(cfg.DialTimeout)
-		if err != nil {
-			return nil, fmt.Errorf("invalid dial_timeout %q: %w", cfg.DialTimeout, err)
-		}
-		opts.DialTimeout = d
-	}
-
-	if cfg.ReadTimeout != "" {
-		d, err := time.ParseDuration(cfg.ReadTimeout)
-		if err != nil {
-			return nil, fmt.Errorf("invalid read_timeout %q: %w", cfg.ReadTimeout, err)
-		}
-		opts.ReadTimeout = d
-	}
-
-	if cfg.WriteTimeout != "" {
-		d, err := time.ParseDuration(cfg.WriteTimeout)
-		if err != nil {
-			return nil, fmt.Errorf("invalid write_timeout %q: %w", cfg.WriteTimeout, err)
-		}
-		opts.WriteTimeout = d
-	}
-
-	if cfg.PoolTimeout != "" {
-		d, err := time.ParseDuration(cfg.PoolTimeout)
-		if err != nil {
-			return nil, fmt.Errorf("invalid pool_timeout %q: %w", cfg.PoolTimeout, err)
-		}
-		opts.PoolTimeout = d
 	}
 
 	return opts, nil
+}
+
+// parseDuration parses a non-empty duration string and assigns it via the
+// provided setter. It is a no-op when raw is empty.
+func parseDuration(raw, field string, set func(time.Duration)) error {
+	if raw == "" {
+		return nil
+	}
+	d, err := time.ParseDuration(raw)
+	if err != nil {
+		return fmt.Errorf("invalid %s %q: %w", field, raw, err)
+	}
+	set(d)
+	return nil
 }
