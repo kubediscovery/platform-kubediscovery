@@ -393,6 +393,7 @@ infra/
 ```
 scripts/
 ├── proto-gen.sh           # protoc → gera código em libs/core/v1/
+├── template-service.sh    # (futuro) utilitário para copiar templates de serviço
 ├── build-all.sh           # go build para todos os serviços
 ├── test-all.sh            # go test ./... em todos os módulos
 ├── lint-all.sh            # golangci-lint em todos os módulos
@@ -476,3 +477,25 @@ Todo serviço inclui:
 | Agente Data Plane | [KD-AGENT.md](KD-AGENT.md) |
 | Executor + Watcher | [KD-EXECUTOR.md](KD-EXECUTOR.md) |
 | Analyzer LLM | [KD-ANALYZER.md](KD-ANALYZER.md) |
+
+
+## `templates/service-go/` — Template padrão de serviço Go
+
+```
+templates/service-go/
+├── cmd/grpc/main.go
+├── configs/module.go
+├── internal/core/example/
+│   ├── entity/entity.go
+│   ├── service/service.go
+│   ├── repository/interface.go
+│   ├── handler/grpc_handler.go
+│   └── module.go
+├── internal/infrastructure/
+│   ├── module.go
+│   ├── grpc/server.go
+│   ├── database/postgres.go
+│   ├── cache/redis.go
+│   └── observability/otel.go
+└── pkg/doc.go
+```
