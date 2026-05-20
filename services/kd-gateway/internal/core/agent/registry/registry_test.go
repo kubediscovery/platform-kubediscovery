@@ -2,6 +2,7 @@ package registry_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/kubediscovery/kd-gateway/internal/core/agent/entity"
 	"github.com/kubediscovery/kd-gateway/internal/core/agent/registry"
@@ -133,5 +134,78 @@ func TestRegistry_ConnectedCount(t *testing.T) {
 
 	if got := r.ConnectedCount(); got != 2 {
 		t.Errorf("ConnectedCount() = %d, want 2", got)
+	}
+}
+
+func TestRegistry_ExpireStale_ExpiresStalAgents(t *testing.T) {
+	r := registry.New()
+	_ = r.Register("agent-1", nil, nil)
+	_ = r.Register("agent-2", nil, nil)
+
+	// Sleep briefly so that LastSeenAt is noticeably in the past.
+	time.Sleep(2 * time.Millisecond)
+
+	// With a 1ns TTL every connected agent is considered stale.
+	expired := r.ExpireStale(time.Nanosecond)
+	if len(expired) != 2 {
+		t.Fatalf("ExpireStale returned %d IDs, want 2", len(expired))
+	}
+
+	for _, id := range []string{"agent-1", "agent-2"} {
+		a, ok := r.Get(id)
+		if !ok {
+			t.Fatalf("agent %q should still exist after expiration", id)
+		}
+		if a.Status != entity.StatusDisconnected {
+			t.Errorf("agent %q Status = %q after TTL expiry, want StatusDisconnected", id, a.Status)
+		}
+		if a.Stream != nil {
+			t.Errorf("agent %q Stream should be nil after TTL expiry", id)
+		}
+	}
+}
+
+func TestRegistry_ExpireStale_SkipsFreshAgents(t *testing.T) {
+	r := registry.New()
+	_ = r.Register("agent-fresh", nil, nil)
+
+	// TTL of 1 hour — a freshly registered agent should not be expired.
+	expired := r.ExpireStale(time.Hour)
+	if len(expired) != 0 {
+		t.Fatalf("ExpireStale returned %v, want empty for fresh agent", expired)
+	}
+
+	a, _ := r.Get("agent-fresh")
+	if a.Status != entity.StatusConnected {
+		t.Errorf("fresh agent Status = %q, want StatusConnected", a.Status)
+	}
+}
+
+func TestRegistry_ExpireStale_SkipsAlreadyDisconnected(t *testing.T) {
+	r := registry.New()
+	_ = r.Register("agent-gone", nil, nil)
+	r.Deregister("agent-gone")
+
+	// Even with a very short TTL, a disconnected agent should not appear in the
+	// expired list a second time.
+	time.Sleep(2 * time.Millisecond)
+	expired := r.ExpireStale(time.Nanosecond)
+	for _, id := range expired {
+		if id == "agent-gone" {
+			t.Error("already-disconnected agent should not be returned by ExpireStale")
+		}
+	}
+}
+
+func TestRegistry_ExpireStale_ReducesConnectedCount(t *testing.T) {
+	r := registry.New()
+	_ = r.Register("a", nil, nil)
+	_ = r.Register("b", nil, nil)
+
+	time.Sleep(2 * time.Millisecond)
+	r.ExpireStale(time.Nanosecond)
+
+	if got := r.ConnectedCount(); got != 0 {
+		t.Errorf("ConnectedCount() = %d after expiry, want 0", got)
 	}
 }

@@ -127,3 +127,25 @@ func (r *Registry) ConnectedCount() int {
 	}
 	return n
 }
+
+// ExpireStale marks as disconnected every connected agent whose LastSeenAt is
+// older than ttl.  It returns the caller IDs of every agent that was expired
+// so the caller can log or act on them.
+//
+// This method is the write-side counterpart to TouchHeartbeat: the heartbeat
+// monitor calls it periodically to enforce TTL-based disconnection.
+func (r *Registry) ExpireStale(ttl time.Duration) []string {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	now := time.Now()
+	var expired []string
+	for id, a := range r.agents {
+		if a.Status == entity.StatusConnected && now.Sub(a.LastSeenAt) > ttl {
+			a.Status = entity.StatusDisconnected
+			a.Stream = nil
+			expired = append(expired, id)
+		}
+	}
+	return expired
+}
