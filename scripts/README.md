@@ -6,7 +6,7 @@ This directory contains helper scripts to automate Linear + GitHub flow for Code
 
 - `check-deps.sh`: validates required CLI tools are installed.
 - `start-task.sh`: moves a Linear issue to `In Progress`, authenticates with GitHub App, creates a branch.
-- `finish-task.sh`: pushes branch, opens PR, comments PR URL in Linear.
+- `finish-task.sh`: runs pre-PR checks (`gofmt` + `golangci-lint` on changed modules), pushes branch, opens PR, comments PR URL in Linear.
 
 ## Required environment variables
 
@@ -21,10 +21,20 @@ This directory contains helper scripts to automate Linear + GitHub flow for Code
 - `openssl`
 - `git`
 - `curl`
+- `gofmt`
+- `golangci-lint`
 
 Optional:
 
 - `gh` (if missing, scripts use GitHub REST API fallback)
+
+## Pre-PR validation behavior
+
+`finish-task.sh` enforces local validation before creating PR:
+
+- Runs `gofmt -w` on changed `.go` files.
+- Runs `golangci-lint run ./...` only in Go module directories affected by changes.
+- Aborts PR creation if formatting/lint fails.
 
 ## Usage
 

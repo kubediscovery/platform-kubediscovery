@@ -21,6 +21,14 @@ REPO="${REPO:-kubediscovery/platform-kubediscovery}"
 RETRY_ATTEMPTS="${RETRY_ATTEMPTS:-5}"
 RETRY_DELAY_SECONDS="${RETRY_DELAY_SECONDS:-3}"
 
+require_command() {
+  local cmd="$1"
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "Required command not found: $cmd" >&2
+    exit 1
+  fi
+}
+
 retry() {
   local attempts="$1"
   local delay="$2"
@@ -38,6 +46,73 @@ retry() {
     sleep "$delay"
     n=$((n + 1))
   done
+}
+
+detect_module_for_path() {
+  local path="$1"
+  local dir
+  dir="$(dirname "$path")"
+
+  while [[ "$dir" != "." && "$dir" != "/" ]]; do
+    if [[ -f "$dir/go.mod" ]]; then
+      printf '%s\n' "$dir"
+      return 0
+    fi
+    dir="$(dirname "$dir")"
+  done
+
+  if [[ -f "go.mod" ]]; then
+    printf '%s\n' "."
+    return 0
+  fi
+
+  return 1
+}
+
+run_pre_pr_checks() {
+  local changed_files changed_go_files module module_list module_csv
+  local -a modules files
+
+  mapfile -t changed_files < <(git status --porcelain | awk '{print $2}')
+  if [[ ${#changed_files[@]} -eq 0 ]]; then
+    echo "No local changes detected before checks."
+    return 0
+  fi
+
+  mapfile -t changed_go_files < <(printf '%s\n' "${changed_files[@]}" | grep -E '\.go$' || true)
+  if [[ ${#changed_go_files[@]} -gt 0 ]]; then
+    echo "Running gofmt on changed Go files..."
+    gofmt -w "${changed_go_files[@]}"
+  else
+    echo "No changed Go files for gofmt."
+  fi
+
+  module_list=""
+  for file in "${changed_files[@]}"; do
+    case "$file" in
+      *.go|go.mod|go.sum)
+        module="$(detect_module_for_path "$file" || true)"
+        if [[ -n "$module" ]]; then
+          module_list+="$module"$'\n'
+        fi
+        ;;
+    esac
+  done
+
+  if [[ -z "$module_list" ]]; then
+    echo "No Go module-related changes detected. Skipping golangci-lint."
+    return 0
+  fi
+
+  mapfile -t modules < <(printf '%s' "$module_list" | sort -u)
+  echo "Running golangci-lint in changed modules:"
+  for module in "${modules[@]}"; do
+    echo "- $module"
+    (cd "$module" && golangci-lint run ./...)
+  done
+
+  module_csv="$(IFS=,; printf '%s' "${modules[*]}")"
+  echo "golangci-lint completed for modules: $module_csv"
 }
 
 if [[ -z "${GITHUB_APP_PRIVATE_KEY:-}" && -n "${GITHUB_APP_PRIVATE_KEY_B64:-}" ]]; then
@@ -70,15 +145,12 @@ github_app_token() {
     -d '{}' | jq -r '.token'
 }
 
-if ! command -v jq >/dev/null 2>&1; then
-  echo "jq not found. Install jq before running this script." >&2
-  exit 1
-fi
-
-if ! command -v openssl >/dev/null 2>&1; then
-  echo "openssl not found. Install openssl before running this script." >&2
-  exit 1
-fi
+require_command jq
+require_command openssl
+require_command git
+require_command curl
+require_command gofmt
+require_command golangci-lint
 
 GITHUB_APP_TOKEN="$(retry "$RETRY_ATTEMPTS" "$RETRY_DELAY_SECONDS" github_app_token)"
 if [[ -z "$GITHUB_APP_TOKEN" || "$GITHUB_APP_TOKEN" == "null" ]]; then
@@ -100,6 +172,7 @@ if [[ -z "$BRANCH" ]]; then
 fi
 
 if [[ -n "$(git status --porcelain)" ]]; then
+  run_pre_pr_checks
   git add -A
   git commit -m "${ISSUE_KEY}: ${SUMMARY}"
 fi

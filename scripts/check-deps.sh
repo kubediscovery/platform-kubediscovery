@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-required_commands=(jq openssl git curl)
+required_commands=(jq openssl git curl gofmt golangci-lint)
 optional_commands=(gh)
 missing=()
 
