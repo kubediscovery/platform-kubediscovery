@@ -1,0 +1,138 @@
+name: Go CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Prevent toolchain auto-download: the installed Go (set by actions/setup-go)
+# is the authoritative toolchain for every job in this workflow.
+env:
+  GOTOOLCHAIN: local
+
+jobs:
+  # ── Format ────────────────────────────────────────────────────────────────
+  format:
+    name: gofmt — check formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go 1.26
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+          cache: false
+
+      - name: Check gofmt formatting
+        run: |
+          UNFORMATTED=$(find . -type f -name "*.go" \
+            ! -path "*/vendor/*" \
+            ! -name "*.pb.go" \
+            | sort | xargs gofmt -l 2>/dev/null)
+          if [ -n "$UNFORMATTED" ]; then
+            printf "The following files are not gofmt-formatted (run: gofmt -w <file>):\n%s\n" "$UNFORMATTED"
+            exit 1
+          fi
+          echo "All Go files are properly formatted."
+
+  # ── Build ─────────────────────────────────────────────────────────────────
+  build:
+    name: go build — compile all modules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go 1.26
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+          cache-dependency-path: |
+            go.work
+            libs/go.sum
+            services/kd-store/go.sum
+
+      - name: Build all workspace modules
+        run: go build all
+
+  # ── Test ──────────────────────────────────────────────────────────────────
+  test:
+    name: go test — run all tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go 1.26
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+          cache-dependency-path: |
+            go.work
+            libs/go.sum
+            services/kd-store/go.sum
+
+      - name: Run tests (all modules)
+        run: |
+          # Use -mindepth 2 to skip the root go.mod (not a workspace module).
+          find . -mindepth 2 -name "go.mod" ! -path "*/vendor/*" \
+            | xargs -I{} dirname {} \
+            | sort \
+            | while read -r moddir; do
+                echo "=== go test ${moddir} ==="
+                (cd "${moddir}" && go test -v -count=1 -timeout 120s ./...)
+              done
+
+  # ── Vulnerability scan ────────────────────────────────────────────────────
+  vuln:
+    name: govulncheck — vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go 1.26
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+          cache-dependency-path: |
+            go.work
+            libs/go.sum
+            services/kd-store/go.sum
+
+      - name: Run govulncheck
+        run: go run golang.org/x/vuln/cmd/govulncheck@latest all
+
+  # ── Lint ──────────────────────────────────────────────────────────────────
+  lint:
+    name: golangci-lint — ${{ matrix.module }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Add new modules here as they are created and added to go.work.
+        module:
+          - libs
+          - services/kd-store
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go 1.26
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+
+      - name: Install golangci-lint (built with Go 1.26)
+        # Build from source so the linter binary is compiled with the same Go
+        # version as the project. Pre-built binaries from the action may be
+        # compiled with an older Go toolchain and will refuse to analyse Go 1.26
+        # code (exit code 3 "can't load config: go version lower than target").
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+
+      - name: Run golangci-lint (${{ matrix.module }})
+        run: golangci-lint run --timeout=5m ./...
+        working-directory: ${{ matrix.module }}

@@ -17,15 +17,15 @@ package configs
 //	database.max_conn_idle_time  → DB_MAX_CONN_IDLE_TIME  (default: 30m)
 //	database.health_check_period → DB_HEALTH_CHECK_PERIOD (default: 1m)
 type DatabaseConfig struct {
-	Host               string `mapstructure:"host"`
-	Port               int    `mapstructure:"port"`
-	Name               string `mapstructure:"name"`
-	User               string `mapstructure:"user"`
-	Password           string `mapstructure:"password"`
-	SSLMode            string `mapstructure:"ssl_mode"`
-	MaxConns           int32  `mapstructure:"max_conns"`
-	MinConns           int32  `mapstructure:"min_conns"`
-	MaxConnLifetime    string `mapstructure:"max_conn_lifetime"`
-	MaxConnIdleTime    string `mapstructure:"max_conn_idle_time"`
-	HealthCheckPeriod  string `mapstructure:"health_check_period"`
+	Host              string `mapstructure:"host"`
+	Port              int    `mapstructure:"port"`
+	Name              string `mapstructure:"name"`
+	User              string `mapstructure:"user"`
+	Password          string `mapstructure:"password"`
+	SSLMode           string `mapstructure:"ssl_mode"`
+	MaxConns          int32  `mapstructure:"max_conns"`
+	MinConns          int32  `mapstructure:"min_conns"`
+	MaxConnLifetime   string `mapstructure:"max_conn_lifetime"`
+	MaxConnIdleTime   string `mapstructure:"max_conn_idle_time"`
+	HealthCheckPeriod string `mapstructure:"health_check_period"`
 }

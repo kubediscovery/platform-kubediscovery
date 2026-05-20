@@ -1,3 +1,4 @@
+// Package response defines common API response payload types.
 package response
 
 // ErrorResponse is a minimal API error payload.

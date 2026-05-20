@@ -1,5 +1,44 @@
 # Proposta de Projeto: Plataforma Kubediscovery
 
+## CI — Go Validation Pipeline
+
+Every push to `main` and every pull request triggers the Go CI workflow defined in [`.github/workflows/go-ci.yml`](.github/workflows/go-ci.yml).
+
+### Checks performed
+
+| Job | Tool | What it validates |
+|-----|------|-------------------|
+| `format` | `gofmt` | All `.go` files (excluding generated `*.pb.go`) are properly formatted. Fails if any file requires reformatting. |
+| `build` | `go build all` | All modules in the Go workspace compile without errors. |
+| `test` | `go test ./...` | All unit tests pass across every workspace module. |
+| `vuln` | `govulncheck` | No known vulnerabilities in module dependencies. |
+| `lint` | `golangci-lint` | Code quality and style checks run per module. Configuration is in [`.golangci.yml`](.golangci.yml). |
+
+### Running checks locally
+
+```bash
+# Format check (shows unformatted files)
+gofmt -l $(find . -type f -name "*.go" ! -path "*/vendor/*" ! -name "*.pb.go")
+
+# Build all workspace modules
+go build all
+
+# Test all workspace modules (skip root go.mod which is not in go.work)
+find . -mindepth 2 -name "go.mod" ! -path "*/vendor/*" | xargs -I{} dirname {} | sort | \
+  while read -r d; do (cd "$d" && go test ./...); done
+
+# Vulnerability scan
+go run golang.org/x/vuln/cmd/govulncheck@latest all
+
+# Lint (run from each module directory)
+cd libs && golangci-lint run ./...
+cd services/kd-store && golangci-lint run ./...
+```
+
+> **Adding new modules**: when a new module is added to `go.work`, add its path to the `matrix.module` list in `.github/workflows/go-ci.yml` so it is included in the lint job.
+
+---
+
 ## Setup de Desenvolvimento Local
 
 > Status atual do repositório (20/05/2026): este repositório ainda está em fase inicial de arquitetura e a maior parte da estrutura é documental. Antes de seguir qualquer passo, valide no seu clone local quais diretórios realmente existem.

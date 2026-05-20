@@ -20,14 +20,14 @@ func TestBuildMigrateDSN(t *testing.T) {
 		{
 			name: "full config produces correct DSN",
 			cfg: configs.DatabaseConfig{
-				Host:    "localhost",
+				Host:    testHost,
 				Port:    5432,
 				Name:    "testdb",
 				User:    "testuser",
-				SSLMode: "disable",
+				SSLMode: defaultSSLMode,
 			},
 			wantErr:   false,
-			wantInDSN: []string{"pgx5://", "testuser", "localhost", "5432", "testdb", "sslmode=disable"},
+			wantInDSN: []string{"pgx5://", "testuser", testHost, "5432", "testdb", "sslmode=disable"},
 		},
 		{
 			name: "with password included in DSN",
@@ -37,7 +37,7 @@ func TestBuildMigrateDSN(t *testing.T) {
 				Name:     "proddb",
 				User:     "produser",
 				Password: "s3cr3t",
-				SSLMode:  "require",
+				SSLMode:  testSSLRequire,
 			},
 			wantErr:   false,
 			wantInDSN: []string{"pgx5://", "produser", "s3cr3t", "db.example.com", "5433", "proddb", "sslmode=require"},
@@ -45,7 +45,7 @@ func TestBuildMigrateDSN(t *testing.T) {
 		{
 			name: "empty ssl_mode defaults to disable",
 			cfg: configs.DatabaseConfig{
-				Host:    "localhost",
+				Host:    testHost,
 				Port:    5432,
 				Name:    "mydb",
 				User:    "myuser",
@@ -56,17 +56,17 @@ func TestBuildMigrateDSN(t *testing.T) {
 		},
 		{
 			name:    "missing host returns error",
-			cfg:     configs.DatabaseConfig{Name: "db", User: "user"},
+			cfg:     configs.DatabaseConfig{Name: "db", User: testUser},
 			wantErr: true,
 		},
 		{
 			name:    "missing name returns error",
-			cfg:     configs.DatabaseConfig{Host: "localhost", User: "user"},
+			cfg:     configs.DatabaseConfig{Host: testHost, User: testUser},
 			wantErr: true,
 		},
 		{
 			name:    "missing user returns error",
-			cfg:     configs.DatabaseConfig{Host: "localhost", Name: "db"},
+			cfg:     configs.DatabaseConfig{Host: testHost, Name: "db"},
 			wantErr: true,
 		},
 	}

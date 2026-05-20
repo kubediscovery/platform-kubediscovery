@@ -3,11 +3,6 @@ go 1.26.3
 toolchain go1.26.3
 
 use (
-	./cli/kdctl
 	./libs
-	./services/kd-agent
-	./services/kd-analyzer
-	./services/kd-executor
-	./services/kd-gateway
 	./services/kd-store
 )

@@ -18,11 +18,11 @@ func TestBuildConnString(t *testing.T) {
 		{
 			name: "all required fields",
 			cfg: configs.DatabaseConfig{
-				Host:    "localhost",
+				Host:    testHost,
 				Port:    5432,
 				Name:    "testdb",
 				User:    "testuser",
-				SSLMode: "disable",
+				SSLMode: defaultSSLMode,
 			},
 			want:    "host=localhost port=5432 dbname=testdb user=testuser sslmode=disable",
 			wantErr: false,
@@ -35,7 +35,7 @@ func TestBuildConnString(t *testing.T) {
 				Name:     "proddb",
 				User:     "produser",
 				Password: "secret",
-				SSLMode:  "require",
+				SSLMode:  testSSLRequire,
 			},
 			want:    "host=db.example.com port=5432 dbname=proddb user=produser sslmode=require password=secret",
 			wantErr: false,
@@ -43,7 +43,7 @@ func TestBuildConnString(t *testing.T) {
 		{
 			name: "empty ssl_mode defaults to disable",
 			cfg: configs.DatabaseConfig{
-				Host:    "localhost",
+				Host:    testHost,
 				Port:    5432,
 				Name:    "mydb",
 				User:    "myuser",
@@ -54,17 +54,17 @@ func TestBuildConnString(t *testing.T) {
 		},
 		{
 			name:    "missing host returns error",
-			cfg:     configs.DatabaseConfig{Name: "db", User: "user"},
+			cfg:     configs.DatabaseConfig{Name: "db", User: testUser},
 			wantErr: true,
 		},
 		{
 			name:    "missing name returns error",
-			cfg:     configs.DatabaseConfig{Host: "localhost", User: "user"},
+			cfg:     configs.DatabaseConfig{Host: testHost, User: testUser},
 			wantErr: true,
 		},
 		{
 			name:    "missing user returns error",
-			cfg:     configs.DatabaseConfig{Host: "localhost", Name: "db"},
+			cfg:     configs.DatabaseConfig{Host: testHost, Name: "db"},
 			wantErr: true,
 		},
 	}
@@ -106,6 +106,7 @@ func TestApplyPoolSettings(t *testing.T) {
 				HealthCheckPeriod: "1m",
 			},
 			check: func(t *testing.T, pc *pgxpool.Config) {
+				t.Helper()
 				if pc.MaxConns != 10 {
 					t.Errorf("MaxConns = %d, want 10", pc.MaxConns)
 				}
@@ -148,6 +149,7 @@ func TestApplyPoolSettings(t *testing.T) {
 			name: "zero MaxConns is skipped",
 			cfg:  configs.DatabaseConfig{},
 			check: func(t *testing.T, pc *pgxpool.Config) {
+				t.Helper()
 				// pgxpool defaults should remain untouched
 				if pc.MaxConns < 0 {
 					t.Errorf("unexpected negative MaxConns: %d", pc.MaxConns)
@@ -182,9 +184,9 @@ func TestSSLMode(t *testing.T) {
 		input string
 		want  string
 	}{
-		{"", "disable"},
-		{"disable", "disable"},
-		{"require", "require"},
+		{"", defaultSSLMode},
+		{defaultSSLMode, defaultSSLMode},
+		{testSSLRequire, testSSLRequire},
 		{"verify-full", "verify-full"},
 	}
 	for _, tt := range tests {

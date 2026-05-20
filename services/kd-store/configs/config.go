@@ -1,3 +1,4 @@
+// Package configs provides configuration loading for kd-store via Viper.
 package configs
 
 import (
