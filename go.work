@@ -1,11 +1,13 @@
-go 1.26
+go 1.26.0
+
+toolchain go1.22.2
 
 use (
+	./cli/kdctl
 	./libs
-	./services/kd-gateway
+	./services/kd-agent
 	./services/kd-analyzer
 	./services/kd-executor
-	./services/kd-agent
+	./services/kd-gateway
 	./services/kd-store
-	./cli/kdctl
 )
