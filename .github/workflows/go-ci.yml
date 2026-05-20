@@ -126,9 +126,13 @@ jobs:
         with:
           go-version: "1.26"
 
+      - name: Install golangci-lint (built with Go 1.26)
+        # Build from source so the linter binary is compiled with the same Go
+        # version as the project. Pre-built binaries from the action may be
+        # compiled with an older Go toolchain and will refuse to analyse Go 1.26
+        # code (exit code 3 "can't load config: go version lower than target").
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+
       - name: Run golangci-lint (${{ matrix.module }})
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: latest
-          working-directory: ${{ matrix.module }}
-          args: --timeout=5m
+        run: golangci-lint run --timeout=5m ./...
+        working-directory: ${{ matrix.module }}
