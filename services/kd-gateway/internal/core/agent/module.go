@@ -21,9 +21,9 @@ func routerAsSink(r *router.Router) handler.ResultSink {
 // All lifecycle hooks (start/stop) are registered automatically.
 var Module = fx.Module("core.agent",
 	fx.Provide(registry.New),
-	fx.Provide(router.New),      // provides *router.Router
-	fx.Provide(routerAsSink),    // adapts *router.Router → handler.ResultSink
-	fx.Provide(handler.New),     // injects registry, logger, and handler.ResultSink
+	fx.Provide(router.New),   // provides *router.Router
+	fx.Provide(routerAsSink), // adapts *router.Router → handler.ResultSink
+	fx.Provide(handler.New),  // injects registry, logger, and handler.ResultSink
 	fx.Provide(heartbeat.NewFX),
 	fx.Invoke(registerGatewayService),
 	// Ensure the Monitor is instantiated even if nothing else depends on it.

@@ -26,10 +26,10 @@ type mockStream struct {
 
 	ctx context.Context
 
-	mu          sync.Mutex
-	sendQueue   []*gatewayv1.AgentStreamMessage
-	sentNotify  chan struct{}
-	sendErr     error // if non-nil, Send returns this error
+	mu         sync.Mutex
+	sendQueue  []*gatewayv1.AgentStreamMessage
+	sentNotify chan struct{}
+	sendErr    error // if non-nil, Send returns this error
 }
 
 func newMockStream() *mockStream {
