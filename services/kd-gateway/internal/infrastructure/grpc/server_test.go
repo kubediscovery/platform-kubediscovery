@@ -18,8 +18,8 @@ import (
 	"testing"
 	"time"
 
-	grpcserver "github.com/kubediscovery/kd-gateway/internal/infrastructure/grpc"
 	"github.com/kubediscovery/kd-gateway/configs"
+	grpcserver "github.com/kubediscovery/kd-gateway/internal/infrastructure/grpc"
 )
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
