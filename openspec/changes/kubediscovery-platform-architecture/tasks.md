@@ -26,7 +26,7 @@
 - [ ] 3.7 Implementar `internal/infrastructure/cache/redis.go` com go-redis e configuração via Viper
 - [ ] 3.8 Implementar `cmd/grpc/main.go` com `fx.New(configs.Module, infrastructure.Module).Run()` e graceful shutdown
 - [ ] 3.9 Escrever testes de integração para migrations e operações CRUD básicas no PostgreSQL
-- [ ] 3.10 Verificar que `go test ./...` passa no módulo `kd-store`
+- [x] 3.10 Verificar que `go test ./...` passa no módulo `kd-store`
 
 ## 4. Phase 1 — kd-gateway (Control Plane Core)
 
