@@ -4,6 +4,7 @@ package infrastructure
 import (
 	"go.uber.org/fx"
 
+	"github.com/kubediscovery/kd-store/internal/infrastructure/cache"
 	"github.com/kubediscovery/kd-store/internal/infrastructure/database"
 )
 
@@ -13,4 +14,5 @@ import (
 var Module = fx.Module("infrastructure",
 	fx.Provide(database.NewMigrator),
 	fx.Provide(database.NewPool),
+	fx.Provide(cache.NewClient),
 )
