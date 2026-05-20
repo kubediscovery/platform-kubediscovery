@@ -13,6 +13,7 @@ import (
 type Config struct {
 	App      AppConfig      `mapstructure:"app"`
 	Database DatabaseConfig `mapstructure:"database"`
+	Cache    CacheConfig    `mapstructure:"cache"`
 }
 
 // AppConfig holds generic application-level settings.
@@ -63,4 +64,17 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("database.max_conn_lifetime", "1h")
 	v.SetDefault("database.max_conn_idle_time", "30m")
 	v.SetDefault("database.health_check_period", "1m")
+
+	v.SetDefault("cache.addr", "localhost:6379")
+	v.SetDefault("cache.password", "")
+	v.SetDefault("cache.db", 0)
+	v.SetDefault("cache.max_retries", 3)
+	v.SetDefault("cache.min_retry_backoff", "8ms")
+	v.SetDefault("cache.max_retry_backoff", "512ms")
+	v.SetDefault("cache.dial_timeout", "5s")
+	v.SetDefault("cache.read_timeout", "3s")
+	v.SetDefault("cache.write_timeout", "3s")
+	v.SetDefault("cache.pool_size", 10)
+	v.SetDefault("cache.min_idle_conns", 2)
+	v.SetDefault("cache.pool_timeout", "4s")
 }

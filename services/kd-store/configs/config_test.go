@@ -31,6 +31,18 @@ func TestNew_Defaults(t *testing.T) {
 	if cfg.Database.MinConns != 2 {
 		t.Errorf("Database.MinConns = %d, want 2", cfg.Database.MinConns)
 	}
+	if cfg.Cache.Addr != "localhost:6379" {
+		t.Errorf("Cache.Addr = %q, want %q", cfg.Cache.Addr, "localhost:6379")
+	}
+	if cfg.Cache.DB != 0 {
+		t.Errorf("Cache.DB = %d, want 0", cfg.Cache.DB)
+	}
+	if cfg.Cache.PoolSize != 10 {
+		t.Errorf("Cache.PoolSize = %d, want 10", cfg.Cache.PoolSize)
+	}
+	if cfg.Cache.MinIdleConns != 2 {
+		t.Errorf("Cache.MinIdleConns = %d, want 2", cfg.Cache.MinIdleConns)
+	}
 }
 
 func TestNew_EnvOverride(t *testing.T) {
