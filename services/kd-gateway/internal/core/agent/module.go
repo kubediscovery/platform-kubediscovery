@@ -7,18 +7,25 @@ import (
 	"github.com/kubediscovery/kd-gateway/internal/core/agent/handler"
 	"github.com/kubediscovery/kd-gateway/internal/core/agent/heartbeat"
 	"github.com/kubediscovery/kd-gateway/internal/core/agent/registry"
+	"github.com/kubediscovery/kd-gateway/internal/core/agent/router"
 )
 
-// Module is the FX module that provides the in-memory Registry, the
-// GatewayService gRPC handler, and the heartbeat TTL monitor.
-// The monitor is registered via its FX lifecycle hooks so it starts and stops
-// automatically with the application.
+// routerAsSink adapts *router.Router to handler.ResultSink so FX can wire
+// the two packages without creating an import cycle.
+func routerAsSink(r *router.Router) handler.ResultSink {
+	return r
+}
+
+// Module is the FX module that provides the in-memory Registry, the command
+// Router, the GatewayService gRPC handler, and the heartbeat TTL monitor.
+// All lifecycle hooks (start/stop) are registered automatically.
 var Module = fx.Module("core.agent",
 	fx.Provide(registry.New),
-	fx.Provide(handler.New),
+	fx.Provide(router.New),      // provides *router.Router
+	fx.Provide(routerAsSink),    // adapts *router.Router → handler.ResultSink
+	fx.Provide(handler.New),     // injects registry, logger, and handler.ResultSink
 	fx.Provide(heartbeat.NewFX),
 	fx.Invoke(registerGatewayService),
-	// Invoke NewFX indirectly by declaring the Monitor as a dependency so FX
-	// actually instantiates it; without this the provide would be pruned.
+	// Ensure the Monitor is instantiated even if nothing else depends on it.
 	fx.Invoke(func(*heartbeat.Monitor) {}),
 )

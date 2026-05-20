@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"log/slog"
+	"sync"
 	"testing"
 
 	gatewayv1 "github.com/kubediscovery/kd-libs/core/v1/gateway"
@@ -82,7 +83,7 @@ func heartbeatMsg(callerID, reqID string) *gatewayv1.AgentStreamMessage {
 
 func newHandler() (*handler.Handler, *registry.Registry) {
 	reg := registry.New()
-	h := handler.New(reg, slog.Default())
+	h := handler.New(reg, slog.Default(), nil)
 	return h, reg
 }
 
@@ -200,5 +201,56 @@ func TestAgentStream_EOF_ReturnsNil(t *testing.T) {
 	err := h.AgentStream(stream)
 	if err != nil {
 		t.Errorf("EOF should return nil error, got: %v", err)
+	}
+}
+
+// captureResultSink records every Deliver call for test assertions.
+type captureResultSink struct {
+	mu      sync.Mutex
+	results []*gatewayv1.AgentCommandResult
+}
+
+func (s *captureResultSink) Deliver(r *gatewayv1.AgentCommandResult) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.results = append(s.results, r)
+}
+
+func (s *captureResultSink) all() []*gatewayv1.AgentCommandResult {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	out := make([]*gatewayv1.AgentCommandResult, len(s.results))
+	copy(out, s.results)
+	return out
+}
+
+func TestAgentStream_CommandResult_DelegatesToResultSink(t *testing.T) {
+	reg := registry.New()
+	sink := &captureResultSink{}
+	h := handler.New(reg, slog.Default(), sink)
+
+	cmdResult := &gatewayv1.AgentStreamMessage{
+		Payload: &gatewayv1.AgentStreamMessage_CommandResult{
+			CommandResult: &gatewayv1.AgentCommandResult{
+				RequestId: "req-sink-test",
+				CallerId:  "agent-sink",
+				Success:   true,
+				Message:   "delivered",
+			},
+		},
+	}
+	stream := newMockStream(helloMsg("agent-sink"), cmdResult)
+
+	err := h.AgentStream(stream)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	got := sink.all()
+	if len(got) != 1 {
+		t.Fatalf("ResultSink.Deliver called %d times, want 1", len(got))
+	}
+	if got[0].GetRequestId() != "req-sink-test" {
+		t.Errorf("delivered request_id = %q, want %q", got[0].GetRequestId(), "req-sink-test")
 	}
 }
