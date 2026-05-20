@@ -1,5 +1,93 @@
 # Proposta de Projeto: Plataforma Kubediscovery
 
+## Setup de Desenvolvimento Local
+
+> Status atual do repositório (20/05/2026): este repositório ainda está em fase inicial de arquitetura e a maior parte da estrutura é documental. Antes de seguir qualquer passo, valide no seu clone local quais diretórios realmente existem.
+
+### 1) Pré-requisitos
+
+- **Go 1.26+** (o workspace root usa `go 1.26` no `go.work`).
+- **Git** para versionamento.
+- **Make** (recomendado para automações futuras, como geração de protos quando o diretório `proto/` estiver presente).
+
+### 2) Workspace (`go.work`)
+
+O repositório já possui um `go.work` na raiz para conectar os módulos planejados da plataforma.
+
+```bash
+go work use ./libs \
+  ./services/kd-gateway \
+  ./services/kd-analyzer \
+  ./services/kd-executor \
+  ./services/kd-agent \
+  ./services/kd-store \
+  ./cli/kdctl
+```
+
+> Importante: em ambientes onde alguns desses diretórios ainda não existirem, ajuste o `go.work` local temporariamente com `go work edit -dropuse <path>` para manter comandos Go funcionais durante a fase de bootstrap.
+
+### 3) Variáveis de ambiente (desenvolvimento)
+
+O padrão de configuração da plataforma é:
+
+- **CLI (`kdctl`)**: arquivo `~/.kubediscovery/config.yaml`
+- **Serviços**: variáveis de ambiente
+- **Desenvolvimento local**: pode usar `.env` (carregado por `godotenv` nos serviços que adotarem esse bootstrap)
+
+Exemplo de variáveis esperadas nos serviços (gRPC + mTLS e identidade de agente):
+
+```bash
+# Identidade do agente (deve ser único por instância)
+AGENT_ID=kd-agent-dev
+
+# Endereço do gateway
+GRPC_ADDR=localhost:50051
+
+# TLS/mTLS
+GRPC_MTLS=1
+GRPC_CLIENT_CA_FILE=$HOME/.kubediscovery/certs/staging/ca.crt
+GRPC_CLIENT_CERT_FILE=$HOME/.kubediscovery/certs/staging/client-dev.crt
+GRPC_CLIENT_KEY_FILE=$HOME/.kubediscovery/certs/staging/client-dev.key
+```
+
+Exemplo para componentes com integração LLM (Databricks):
+
+```bash
+# Endpoint Databricks (sem https://)
+DATABRICKS_HOST=<workspace>.cloud.databricks.com
+DATABRICKS_ENDPOINT_NAME=databricks-claude-sonnet-4-6
+
+# Desenvolvimento: token estático
+DATABRICKS_TOKEN=<pat>
+
+# Produção (preferencial): OAuth M2M
+DATABRICKS_SP_CLIENT_ID=<client-id>
+DATABRICKS_SP_CLIENT_SECRET=<client-secret>
+```
+
+### 4) Dependências e convenções técnicas
+
+- **Injeção de dependência**: `go.uber.org/fx`
+- **Configuração**: `github.com/spf13/viper`
+- **Transporte entre control plane/data plane**: gRPC bidirecional com **mTLS**
+- **Observabilidade**: Prometheus (`/metrics`) + OpenTelemetry (OTLP HTTP exporter)
+- **Protobuf**: fonte canônica em `proto/kubediscovery/v1/*.proto`; código Go gerado em `libs/core/v1/<service>/` (não editar `*.pb.go` manualmente)
+
+### 5) Comandos úteis para validar ambiente
+
+```bash
+# validar versão do Go
+go version
+
+# validar integridade do workspace
+go work sync
+
+# listar módulos conectados no workspace
+go list -m
+```
+
+Se algum comando falhar por diretório ausente no `go.work`, ajuste temporariamente as entradas `use` de acordo com o estado real do seu clone.
+
 ## 1. Resumo Executivo
 O **Kubediscovery** é uma plataforma de gerenciamento e orquestração distribuída para ambientes Kubernetes. O objetivo principal é estabelecer uma arquitetura centralizada (Control Plane / Server) capaz de gerenciar e interagir de forma transparente e segura com múltiplos clusters remotos (Data Plane / Clients) através de Kubernetes Operators.
 
