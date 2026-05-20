@@ -35,7 +35,7 @@
 - [ ] 4.3 Implementar handler gRPC bidirecional `internal/core/agent/handler/grpc_handler.go` — aceitar stream, registrar agente por `caller_id`, indexar em mapa em memória
 - [x] 4.4 Implementar detecção de desconexão via heartbeat — marcar agente como `disconnected` ao expirar TTL
 - [ ] 4.5 Implementar lógica de roteamento de comandos para agente por `caller_id` — retornar `UNAVAILABLE` se agente offline
-- [ ] 4.6 Implementar rejeição de `caller_id` duplicado com política configurável (rejeitar novo ou encerrar anterior)
+- [x] 4.6 Implementar rejeição de `caller_id` duplicado com política configurável (rejeitar novo ou encerrar anterior)
 - [ ] 4.7 Implementar `internal/infrastructure/http/server.go` com Gin-Gonic em porta separada da gRPC
 - [ ] 4.8 Implementar `GET /api/v1/agents` retornando lista de agentes com status, `caller_id`, ambiente e última atividade
 - [ ] 4.9 Implementar middleware de erro estruturado HTTP (`{"error": "...", "code": "..."}`)

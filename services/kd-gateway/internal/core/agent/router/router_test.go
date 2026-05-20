@@ -91,7 +91,7 @@ func (m *mockStream) lastSent() *gatewayv1.AgentStreamMessage {
 func newRouter(ms *mockStream, callerID string) (*router.Router, *registry.Registry) {
 	reg := registry.New()
 	if ms != nil {
-		_ = reg.Register(callerID, ms, nil)
+		_, _ = reg.Register(callerID, ms, nil)
 	}
 	r := router.New(reg, slog.Default())
 	return r, reg
@@ -282,8 +282,8 @@ func TestRouter_Send_CommandForwardsToCorrectAgent(t *testing.T) {
 	msB := newMockStream()
 
 	reg := registry.New()
-	_ = reg.Register("agent-A", msA, nil)
-	_ = reg.Register("agent-B", msB, nil)
+	_, _ = reg.Register("agent-A", msA, nil)
+	_, _ = reg.Register("agent-B", msB, nil)
 	r := router.New(reg, slog.Default())
 
 	cmd := gatewayCmd("req-fwd", "agent-A", "get_logs")

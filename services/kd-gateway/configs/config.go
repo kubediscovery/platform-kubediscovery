@@ -10,11 +10,34 @@ import (
 	"go.uber.org/fx"
 )
 
+// DuplicatePolicy controls what happens when an agent attempts to connect with
+// a caller_id that is already registered as connected.
+type DuplicatePolicy string
+
+const (
+	// DuplicatePolicyRejectNew rejects the incoming stream with codes.AlreadyExists.
+	// This is the default and safest policy.
+	DuplicatePolicyRejectNew DuplicatePolicy = "reject_new"
+
+	// DuplicatePolicyEvictPrevious terminates the existing stream and accepts the
+	// new one.  The old stream receives codes.Aborted so the agent can reconnect.
+	DuplicatePolicyEvictPrevious DuplicatePolicy = "evict_previous"
+)
+
 // Config is the root configuration struct for kd-gateway.
 type Config struct {
 	App       AppConfig       `mapstructure:"app"`
 	GRPC      GRPCConfig      `mapstructure:"grpc"`
 	Heartbeat HeartbeatConfig `mapstructure:"heartbeat"`
+	Agent     AgentConfig     `mapstructure:"agent"`
+}
+
+// AgentConfig holds settings that govern connected agent behaviour.
+type AgentConfig struct {
+	// DuplicatePolicy defines what the gateway does when a second connection
+	// arrives with the same caller_id as an already-connected agent.
+	// Valid values: "reject_new" (default) | "evict_previous".
+	DuplicatePolicy DuplicatePolicy `mapstructure:"duplicate_policy"`
 }
 
 // AppConfig holds generic application-level settings.
@@ -73,4 +96,6 @@ func setDefaults(v *viper.Viper) {
 
 	v.SetDefault("heartbeat.ttl", 30*time.Second)
 	v.SetDefault("heartbeat.check_interval", 10*time.Second)
+
+	v.SetDefault("agent.duplicate_policy", string(DuplicatePolicyRejectNew))
 }
