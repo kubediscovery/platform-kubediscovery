@@ -22,12 +22,15 @@ import (
 type Pool = pgxpool.Pool
 
 // Params groups the FX-injected inputs for NewPool.
+// Migrator is included as a dependency so that FX runs its OnStart lifecycle
+// hook (which applies pending migrations) before running the pool's OnStart hook.
 type Params struct {
 	fx.In
 
-	LC     fx.Lifecycle
-	Config *configs.Config
-	Logger *slog.Logger
+	LC       fx.Lifecycle
+	Config   *configs.Config
+	Logger   *slog.Logger
+	Migrator *Migrator
 }
 
 // NewPool constructs a *pgxpool.Pool from the injected DatabaseConfig,
