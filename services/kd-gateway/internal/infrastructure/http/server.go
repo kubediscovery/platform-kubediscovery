@@ -39,9 +39,10 @@ type Server struct {
 type Params struct {
 	fx.In
 
-	LC     fx.Lifecycle
-	Config *configs.Config
-	Log    *slog.Logger
+	LC             fx.Lifecycle
+	Config         *configs.Config
+	Log            *slog.Logger
+	MetricsHandler http.Handler
 }
 
 // New constructs the HTTP/Gin server, attaches the base middleware chain and
@@ -70,6 +71,7 @@ func New(p Params) *Server {
 	engine.NoRoute(notFoundHandler)
 	engine.NoMethod(methodNotAllowedHandler)
 	engine.GET("/healthz", healthHandler)
+	engine.GET("/metrics", gin.WrapH(p.MetricsHandler))
 
 	httpSrv := &http.Server{
 		Addr:              cfg.Addr,

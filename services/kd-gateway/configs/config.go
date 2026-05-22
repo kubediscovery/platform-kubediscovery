@@ -26,11 +26,12 @@ const (
 
 // Config is the root configuration struct for kd-gateway.
 type Config struct {
-	App       AppConfig       `mapstructure:"app"`
-	GRPC      GRPCConfig      `mapstructure:"grpc"`
-	HTTP      HTTPConfig      `mapstructure:"http"`
-	Heartbeat HeartbeatConfig `mapstructure:"heartbeat"`
-	Agent     AgentConfig     `mapstructure:"agent"`
+	App       AppConfig           `mapstructure:"app"`
+	GRPC      GRPCConfig          `mapstructure:"grpc"`
+	HTTP      HTTPConfig          `mapstructure:"http"`
+	Obs       ObservabilityConfig `mapstructure:"observability"`
+	Heartbeat HeartbeatConfig     `mapstructure:"heartbeat"`
+	Agent     AgentConfig         `mapstructure:"agent"`
 }
 
 // AgentConfig holds settings that govern connected agent behaviour.
@@ -101,6 +102,13 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("http.write_timeout", 30*time.Second)
 	v.SetDefault("http.idle_timeout", 120*time.Second)
 	v.SetDefault("http.trusted_proxies", []string{"127.0.0.1"})
+
+	v.SetDefault("observability.service_name", "kd-gateway")
+	v.SetDefault("observability.service_version", "dev")
+	v.SetDefault("observability.environment", "development")
+	v.SetDefault("observability.otlp.endpoint", "localhost:4318")
+	v.SetDefault("observability.otlp.insecure", true)
+	v.SetDefault("observability.otlp.timeout", 10*time.Second)
 
 	v.SetDefault("heartbeat.ttl", 30*time.Second)
 	v.SetDefault("heartbeat.check_interval", 10*time.Second)

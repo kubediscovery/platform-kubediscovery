@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"os"
 	"testing"
 	"time"
@@ -73,6 +74,7 @@ func newTestServer(t *testing.T, addr string) (*httpserver.Server, func()) {
 	app := fxtest.New(t,
 		fx.Provide(func() *configs.Config { return cfg }),
 		fx.Provide(func() *slog.Logger { return log }),
+		fx.Provide(func() http.Handler { return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte(strings.TrimSpace("kd_gateway_up 1"))) }) }),
 		fx.Provide(httpserver.New),
 		fx.Populate(&srv),
 	)
@@ -169,6 +171,7 @@ func TestRecoveryMiddleware(t *testing.T) {
 	app := fxtest.New(t,
 		fx.Provide(func() *configs.Config { return cfg }),
 		fx.Provide(func() *slog.Logger { return log }),
+		fx.Provide(func() http.Handler { return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte(strings.TrimSpace("kd_gateway_up 1"))) }) }),
 		fx.Provide(httpserver.New),
 		fx.Populate(&srv),
 	)
@@ -212,6 +215,7 @@ func TestUnknownRouteReturns404(t *testing.T) {
 	app := fxtest.New(t,
 		fx.Provide(func() *configs.Config { return cfg }),
 		fx.Provide(func() *slog.Logger { return log }),
+		fx.Provide(func() http.Handler { return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte(strings.TrimSpace("kd_gateway_up 1"))) }) }),
 		fx.Provide(httpserver.New),
 		fx.Populate(&srv),
 	)
@@ -249,6 +253,7 @@ func TestStructuredErrorMiddleware(t *testing.T) {
 	app := fxtest.New(t,
 		fx.Provide(func() *configs.Config { return cfg }),
 		fx.Provide(func() *slog.Logger { return log }),
+		fx.Provide(func() http.Handler { return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte(strings.TrimSpace("kd_gateway_up 1"))) }) }),
 		fx.Provide(httpserver.New),
 		fx.Populate(&srv),
 	)

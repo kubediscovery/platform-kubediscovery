@@ -22,6 +22,8 @@ func NewLogger(cfg *configs.Config) *slog.Logger {
 // Module is the FX module that provides the *slog.Logger.
 var Module = fx.Module("observability",
 	fx.Provide(NewLogger),
+	fx.Provide(NewPrometheusHandler),
+	fx.Provide(NewOTLPExporter),
 )
 
 func parseLevel(s string) slog.Level {
