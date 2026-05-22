@@ -9,6 +9,7 @@ import (
 	"github.com/kubediscovery/kd-gateway/internal/core/agent/registry"
 	"github.com/kubediscovery/kd-gateway/internal/core/agent/router"
 	"github.com/kubediscovery/kd-gateway/internal/core/agent/service"
+	"github.com/kubediscovery/kd-gateway/internal/infrastructure/observability"
 )
 
 // routerAsSink adapts *router.Router to handler.ResultSink so FX can wire
@@ -21,6 +22,12 @@ func routerAsSink(r *router.Router) handler.ResultSink {
 // Router, the GatewayService gRPC handler, and the heartbeat TTL monitor.
 // All lifecycle hooks (start/stop) are registered automatically.
 var Module = fx.Module("core.agent",
+	fx.Provide(
+		fx.Annotate(
+			func(r *registry.Registry) observability.ActiveAgentsSource { return r },
+			fx.As(new(observability.ActiveAgentsSource)),
+		),
+	),
 	fx.Provide(registry.New),
 	fx.Provide(router.New),   // provides *router.Router
 	fx.Provide(routerAsSink), // adapts *router.Router → handler.ResultSink
