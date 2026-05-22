@@ -53,7 +53,7 @@
 - [ ] 5.4 Implementar envio de frame inicial com `caller_id` = `AGENT_ID` ao estabelecer stream
 - [ ] 5.5 Implementar validação de `AGENT_ID` na inicialização — falhar com erro explícito se ausente
 - [ ] 5.6 Implementar recebimento e despacho de comandos do gateway para o `kd-executor` local
-- [ ] 5.7 Implementar retorno de erro `UNAVAILABLE` quando `kd-executor` não estiver disponível
+- [x] 5.7 Implementar retorno de erro `UNAVAILABLE` quando `kd-executor` não estiver disponível
 - [ ] 5.8 Implementar `internal/infrastructure/observability/` com Prometheus e OpenTelemetry — propagar trace context via metadata gRPC
 - [ ] 5.9 Implementar `cmd/grpc/main.go` com UberFX e graceful shutdown do stream gRPC
 - [ ] 5.10 Escrever testes unitários para lógica de retry, envio de `caller_id` e despacho de comandos
