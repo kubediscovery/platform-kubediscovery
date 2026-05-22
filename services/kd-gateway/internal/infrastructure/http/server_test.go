@@ -5,6 +5,7 @@ package http_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net"
 	"net/http"
@@ -198,8 +199,8 @@ func TestRecoveryMiddleware(t *testing.T) {
 	}
 }
 
-// TestUnknownRouteReturns404 verifies that the default Gin 404 handler is
-// active for unknown paths.
+// TestUnknownRouteReturns404 verifies unknown paths return the structured
+// JSON error payload.
 func TestUnknownRouteReturns404(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -223,5 +224,58 @@ func TestUnknownRouteReturns404(t *testing.T) {
 
 	if w.Code != http.StatusNotFound {
 		t.Errorf("expected 404, got %d", w.Code)
+	}
+
+	var body map[string]string
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatalf("decode not-found response: %v", err)
+	}
+	if body["error"] != "resource not found" {
+		t.Errorf("unexpected error field: %q", body["error"])
+	}
+	if body["code"] != "NOT_FOUND" {
+		t.Errorf("unexpected code field: %q", body["code"])
+	}
+}
+
+func TestStructuredErrorMiddleware(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	log := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelError}))
+	cfg := testConfig("127.0.0.1:0")
+
+	var srv *httpserver.Server
+
+	app := fxtest.New(t,
+		fx.Provide(func() *configs.Config { return cfg }),
+		fx.Provide(func() *slog.Logger { return log }),
+		fx.Provide(httpserver.New),
+		fx.Populate(&srv),
+	)
+	app.RequireStart()
+	defer app.RequireStop()
+
+	srv.Engine().GET("/boom", func(c *gin.Context) {
+		_ = c.Error(errors.New("bad request payload"))
+		c.Status(http.StatusBadRequest)
+	})
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/boom", nil)
+	srv.Engine().ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected 400, got %d", w.Code)
+	}
+
+	var body map[string]string
+	if err := json.NewDecoder(w.Body).Decode(&body); err != nil {
+		t.Fatalf("decode middleware response: %v", err)
+	}
+	if body["error"] != "bad request payload" {
+		t.Errorf("unexpected error field: %q", body["error"])
+	}
+	if body["code"] != "Bad Request" {
+		t.Errorf("unexpected code field: %q", body["code"])
 	}
 }
