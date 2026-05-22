@@ -28,6 +28,7 @@ const (
 type Config struct {
 	App       AppConfig       `mapstructure:"app"`
 	GRPC      GRPCConfig      `mapstructure:"grpc"`
+	HTTP      HTTPConfig      `mapstructure:"http"`
 	Heartbeat HeartbeatConfig `mapstructure:"heartbeat"`
 	Agent     AgentConfig     `mapstructure:"agent"`
 }
@@ -93,6 +94,13 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("grpc.mtls", true)
 	v.SetDefault("grpc.client_ca_file", "~/.kubediscovery/certs/staging/ca.crt")
 	v.SetDefault("grpc.debug", false)
+
+	v.SetDefault("http.addr", "0.0.0.0:8080")
+	v.SetDefault("http.read_header_timeout", 10*time.Second)
+	v.SetDefault("http.read_timeout", 30*time.Second)
+	v.SetDefault("http.write_timeout", 30*time.Second)
+	v.SetDefault("http.idle_timeout", 120*time.Second)
+	v.SetDefault("http.trusted_proxies", []string{"127.0.0.1"})
 
 	v.SetDefault("heartbeat.ttl", 30*time.Second)
 	v.SetDefault("heartbeat.check_interval", 10*time.Second)

@@ -5,6 +5,7 @@ import (
 	"go.uber.org/fx"
 
 	grpcserver "github.com/kubediscovery/kd-gateway/internal/infrastructure/grpc"
+	httpserver "github.com/kubediscovery/kd-gateway/internal/infrastructure/http"
 	"github.com/kubediscovery/kd-gateway/internal/infrastructure/observability"
 )
 
@@ -12,4 +13,5 @@ import (
 var Module = fx.Module("infrastructure",
 	observability.Module,
 	fx.Provide(grpcserver.New),
+	fx.Provide(httpserver.New),
 )
