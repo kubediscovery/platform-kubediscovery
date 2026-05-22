@@ -21,6 +21,16 @@ func TestBaseInterceptorsNotNil(t *testing.T) {
 	}
 }
 
+func TestMetricsInterceptorsNotNil(t *testing.T) {
+	unary, stream := middleware.MetricsInterceptors(nil)
+	if len(unary) != 1 {
+		t.Errorf("expected 1 unary metrics interceptor, got %d", len(unary))
+	}
+	if len(stream) != 1 {
+		t.Errorf("expected 1 stream metrics interceptor, got %d", len(stream))
+	}
+}
+
 func TestDebugInterceptorsNotNil(t *testing.T) {
 	unary, stream := middleware.DebugInterceptors()
 	if len(unary) == 0 {

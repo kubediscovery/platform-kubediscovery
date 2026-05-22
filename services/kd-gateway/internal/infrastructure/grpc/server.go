@@ -31,6 +31,7 @@ import (
 
 	"github.com/kubediscovery/kd-gateway/configs"
 	"github.com/kubediscovery/kd-gateway/internal/infrastructure/middleware"
+	"github.com/kubediscovery/kd-gateway/internal/infrastructure/observability"
 )
 
 const (
@@ -49,9 +50,10 @@ type Server struct {
 type Params struct {
 	fx.In
 
-	LC     fx.Lifecycle
-	Config *configs.Config
-	Log    *slog.Logger
+	LC      fx.Lifecycle
+	Config  *configs.Config
+	Log     *slog.Logger
+	Metrics *observability.Metrics
 }
 
 // New constructs the gRPC server, configures TLS/mTLS, chains all interceptors
@@ -68,7 +70,7 @@ func New(p Params) (*Server, error) {
 		return nil, fmt.Errorf("grpc server: build credentials: %w", err)
 	}
 
-	opts := buildServerOptions(cfg, creds)
+	opts := buildServerOptions(cfg, creds, p.Metrics)
 
 	grpcSrv := grpc.NewServer(opts...)
 
@@ -167,8 +169,14 @@ func BuildCredentials(cfg configs.GRPCConfig) (credentials.TransportCredentials,
 
 // buildServerOptions assembles the gRPC server options: transport credentials
 // and the interceptor chains (always-on + optional debug interceptors).
-func buildServerOptions(cfg configs.GRPCConfig, creds credentials.TransportCredentials) []grpc.ServerOption {
+func buildServerOptions(cfg configs.GRPCConfig, creds credentials.TransportCredentials, metrics *observability.Metrics) []grpc.ServerOption {
 	unary, stream := middleware.BaseInterceptors()
+
+	if metrics != nil {
+		mu, ms := middleware.MetricsInterceptors(metrics)
+		unary = append(mu, unary...)
+		stream = append(ms, stream...)
+	}
 
 	if cfg.Debug {
 		du, ds := middleware.DebugInterceptors()
