@@ -3,6 +3,8 @@ module github.com/kubediscovery/kd-gateway
 go 1.26.0
 
 require (
+	github.com/gin-gonic/gin v1.12.0
+	github.com/kubediscovery/kd-libs v0.0.0-00010101000000-000000000000
 	github.com/spf13/viper v1.21.0
 	go.uber.org/fx v1.24.0
 	google.golang.org/grpc v1.81.1
@@ -16,7 +18,6 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.12 // indirect
 	github.com/gin-contrib/sse v1.1.0 // indirect
-	github.com/gin-gonic/gin v1.12.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.30.1 // indirect
