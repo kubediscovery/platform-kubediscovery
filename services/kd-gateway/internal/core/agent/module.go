@@ -24,7 +24,7 @@ var Module = fx.Module("core.agent",
 	fx.Provide(registry.New),
 	fx.Provide(router.New),   // provides *router.Router
 	fx.Provide(routerAsSink), // adapts *router.Router → handler.ResultSink
-	fx.Provide(handler.New),      // gRPC GatewayService handler
+	fx.Provide(handler.New),  // gRPC GatewayService handler
 	fx.Provide(service.New),
 	fx.Provide(handler.NewHTTP),
 	fx.Provide(heartbeat.NewFX),
