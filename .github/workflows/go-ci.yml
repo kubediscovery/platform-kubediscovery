@@ -10,6 +10,7 @@ on:
 # is the authoritative toolchain for every job in this workflow.
 env:
   GOTOOLCHAIN: local
+  GOLANGCI_LINT_VERSION: v2.12.1
 
 jobs:
   # ── Format ────────────────────────────────────────────────────────────────
@@ -131,7 +132,10 @@ jobs:
         # version as the project. Pre-built binaries from the action may be
         # compiled with an older Go toolchain and will refuse to analyse Go 1.26
         # code (exit code 3 "can't load config: go version lower than target").
-        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@${GOLANGCI_LINT_VERSION}
+
+      - name: Verify golangci-lint version
+        run: golangci-lint version
 
       - name: Run golangci-lint (${{ matrix.module }})
         run: golangci-lint run --timeout=5m ./...
