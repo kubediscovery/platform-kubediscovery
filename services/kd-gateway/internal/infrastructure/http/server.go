@@ -65,7 +65,10 @@ func New(p Params) *Server {
 
 	engine.Use(requestLogger(p.Log))
 	engine.Use(recoveryMiddleware(p.Log))
+	engine.Use(structuredErrorMiddleware())
 
+	engine.NoRoute(notFoundHandler)
+	engine.NoMethod(methodNotAllowedHandler)
 	engine.GET("/healthz", healthHandler)
 
 	httpSrv := &http.Server{
@@ -175,4 +178,40 @@ func recoveryMiddleware(log *slog.Logger) gin.HandlerFunc {
 		}()
 		c.Next()
 	}
+}
+
+// structuredErrorMiddleware converts accumulated Gin errors into a standard
+// JSON payload expected by API consumers.
+func structuredErrorMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
+
+		if c.Writer.Written() || len(c.Errors) == 0 {
+			return
+		}
+
+		status := c.Writer.Status()
+		if status < http.StatusBadRequest {
+			status = http.StatusInternalServerError
+		}
+
+		c.AbortWithStatusJSON(status, gin.H{
+			"error": c.Errors.Last().Error(),
+			"code":  http.StatusText(status),
+		})
+	}
+}
+
+func notFoundHandler(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+		"error": "resource not found",
+		"code":  "NOT_FOUND",
+	})
+}
+
+func methodNotAllowedHandler(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusMethodNotAllowed, gin.H{
+		"error": "method not allowed",
+		"code":  "METHOD_NOT_ALLOWED",
+	})
 }
